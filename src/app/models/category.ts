@@ -1,4 +1,5 @@
 import { Schema, model } from 'mongoose';
+import slugify from 'slugify';
 
 const CategorySchema = new Schema(
   {
@@ -13,15 +14,24 @@ const CategorySchema = new Schema(
   },
 );
 
+CategorySchema.pre('save', function (next) {
+  if (this.isModified('name') || this.isNew) {
+    if (typeof this.name === 'string') {
+      this.slug = slugify(this.name, { lower: true, strict: true }); // Tạo slug từ name
+    }
+  }
+  next();
+});
+
 const CategoryModel = model('Category', CategorySchema);
 
 export default CategoryModel;
 
 export const CategoryMethods = {
-  getCategory: () => CategoryModel.find(),
+  getCategories: () => CategoryModel.find(),
   getCategoryBySlug: (slug: string): any => CategoryModel.findOne({ slug }),
   createCategory: (values: Record<string, any>) =>
     new CategoryModel(values).save().then((category) => category.toObject()),
-  updateCategory: (id: string) => CategoryModel.findByIdAndUpdate({ _id: id }),
-  deleteCategory: (id: string) => CategoryModel.findByIdAndDelete({ _id: id }),
+  updateCategoryById: (id: string): any => CategoryModel.findByIdAndUpdate({ _id: id }),
+  deleteCategoryById: (id: string) => CategoryModel.findByIdAndDelete({ _id: id }),
 };

@@ -47,6 +47,7 @@ export const updateProduct = async (req: express.Request, res: express.Response)
       });
     }
 
+    //Map cloneFormData from client check value is undefined to update that value
     Object.keys(newFormData).forEach((key) => {
       if (newFormData[key] !== undefined) {
         product[key] = newFormData[key];
@@ -73,14 +74,15 @@ export const deleteProduct = async (req: express.Request, res: express.Response)
   try {
     const { id } = req.params;
 
-    const product = await ProductMethods.deleteProductById(id);
+    await ProductMethods.deleteProductById(id);
 
-    if (!product) {
-      return res.status(403).json({
-        status: false,
-        message: 'Sản phẩm không tồn tại hãy thử lại',
-      });
-    }
+    const products = await ProductMethods.getProducts();
+
+    return res.status(200).json({
+      status: true,
+      message: 'Xoá sản phẩm thành công',
+      products,
+    });
   } catch (error) {
     console.log(error);
     return res.status(500).json({
