@@ -64,7 +64,7 @@ export const login = async (req: express.Request, res: express.Response): Promis
     res.json({
       status: true,
       message: 'Đăng nhập thành công',
-      data: user,
+      user,
     });
   } catch (error) {
     console.log(error);
@@ -107,7 +107,7 @@ export const register = async (req: express.Request, res: express.Response): Pro
       .json({
         status: true,
         message: 'Đăng ký tài khoản thành công',
-        user: newUser,
+        newUser,
       })
       .end()
       .status(200);

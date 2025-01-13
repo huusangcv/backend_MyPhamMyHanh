@@ -46,7 +46,7 @@ export const updateUser = async (req: express.Request, res: express.Response): P
     const { id } = req.params;
     const { username, address, phone, status } = req.body;
 
-    const user = await UserMethods.getUserById(id);
+    const user = await UserMethods.updateUserById(id);
 
     if (!user) {
       return res.status(404).json({ status: false, message: 'Người dùng không tồn tại' });
