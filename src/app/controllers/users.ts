@@ -1,6 +1,7 @@
 import express from 'express';
 import { UserMethods } from '../models/user';
 
+// [GET] /users
 export const getAllUsers = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
     const users = await UserMethods.getUsers();
@@ -24,6 +25,7 @@ export const getAllUsers = async (req: express.Request, res: express.Response): 
   }
 };
 
+// [GET] /user/:id
 export const detailUser = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
     const { id } = req.params;
@@ -51,6 +53,7 @@ export const detailUser = async (req: express.Request, res: express.Response): P
   }
 };
 
+// [GET] /users/search?q=
 export const searchUsers = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
     const { q } = req.query;
@@ -79,6 +82,7 @@ export const searchUsers = async (req: express.Request, res: express.Response): 
   }
 };
 
+// [DELETE] /user/:id
 export const deleteUser = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
     const { id } = req.params;
@@ -97,6 +101,7 @@ export const deleteUser = async (req: express.Request, res: express.Response): P
   }
 };
 
+// [PATCH] /user/:id
 export const updateUser = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
     const { id } = req.params;
@@ -104,16 +109,20 @@ export const updateUser = async (req: express.Request, res: express.Response): P
 
     const cloneFormData = { ...formData };
 
-    let user = await UserMethods.updateUserById(id);
+    let user = await UserMethods.updateUserById(id as string);
+
+    // Check email from client existing in system
+    if (user && cloneFormData.email === user.email) {
+      return res.status(403).json({
+        status: false,
+        message: 'Tài khoản đã tồn tại trong hệ thống',
+      });
+    }
 
     if (!user) {
       return res.status(404).json({ status: false, message: 'Người dùng không tồn tại' });
     }
 
-    if (cloneFormData._id) {
-      delete cloneFormData._id;
-      return res.status(403).json({ status: false, message: 'Không thể cập nhật trường _id' });
-    }
     //Map cloneFormData from client check value is undefined to update that value
     Object.keys(cloneFormData).forEach((key) => {
       if (cloneFormData[key] !== undefined) {

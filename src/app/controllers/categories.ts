@@ -2,6 +2,7 @@ import { CategoryMethods } from '../models/category';
 import express from 'express';
 import slugify from 'slugify';
 
+// [POST] /categories
 export const createCategory = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
     const formData = req.body;
@@ -34,6 +35,7 @@ export const createCategory = async (req: express.Request, res: express.Response
   }
 };
 
+// [PATCH] /category/:id
 export const updateCategory = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
     const { id } = req.params;
@@ -72,6 +74,7 @@ export const updateCategory = async (req: express.Request, res: express.Response
   }
 };
 
+// [DELETE] /category/:id
 export const deleteCategory = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
     const { id } = req.params;
@@ -94,6 +97,7 @@ export const deleteCategory = async (req: express.Request, res: express.Response
   }
 };
 
+// [GET] /categories
 export const getAllCategory = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
     const category = await CategoryMethods.getCategories();
@@ -119,6 +123,7 @@ export const getAllCategory = async (req: express.Request, res: express.Response
   }
 };
 
+// [GET] /category/:slug
 export const getCategoryBySlug = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
     const { slug } = req.params;
@@ -145,6 +150,7 @@ export const getCategoryBySlug = async (req: express.Request, res: express.Respo
   }
 };
 
+// [GET] /category/search?q=
 export const getCategoryBySearch = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
     const { q } = req.query;

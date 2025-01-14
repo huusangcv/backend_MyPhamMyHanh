@@ -93,8 +93,9 @@ export const register = async (req: express.Request, res: express.Response): Pro
         })
         .status(400);
     }
+
     const salt = random();
-    await UserMethods.createUser({
+    const user = await UserMethods.createUser({
       email,
       username,
       authentication: {
@@ -102,13 +103,19 @@ export const register = async (req: express.Request, res: express.Response): Pro
         password: authentication(salt, password),
       },
     });
+
+    return res.status(200).json({
+      status: true,
+      message: 'Đăng ký thành công',
+      user,
+    });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ status: false, message: 'Đã xảy ra lỗi' });
   }
 };
 
-// [GET] /auth/logout
+// [GET] /auth/logout  || /logout
 export const logout = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
     res.clearCookie('AUTH');
@@ -120,6 +127,7 @@ export const logout = async (req: express.Request, res: express.Response): Promi
   }
 };
 
+// [GET] /login
 export const loginForAdmin = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
     const { email, password } = req.body;

@@ -2,11 +2,12 @@ import slugify from 'slugify';
 import { ProductMethods } from '../models/product';
 import express from 'express';
 
+// [POST] /products
 export const createProduct = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
-    // const {name, price, category_id,note, description, image, status, sold, bestseller, discount} = req.body
     const formData = req.body;
-    let slug = slugify(formData.name, { lower: true, strict: true });
+    const cloneFormData = formData;
+    let slug = slugify(cloneFormData.name, { lower: true, strict: true });
 
     const exsitingProduct = await ProductMethods.getProductBySlug(slug);
 
@@ -17,7 +18,7 @@ export const createProduct = async (req: express.Request, res: express.Response)
       });
     }
 
-    const newProduct = await ProductMethods.createProduct(formData);
+    const newProduct = await ProductMethods.createProduct(cloneFormData);
 
     return res.status(200).json({
       status: true,
@@ -33,12 +34,23 @@ export const createProduct = async (req: express.Request, res: express.Response)
   }
 };
 
+// [PATCH] /product/:id
 export const updateProduct = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
     const formData = req.body;
-    const newFormData = formData;
+    const cloneFormData = formData;
     const { id } = req.params;
-    const product = await ProductMethods.updateProductById(id);
+
+    let product = await ProductMethods.updateProductById(id);
+
+    const slug = slugify(cloneFormData.name, { lower: true, strict: true });
+
+    if (product && slug === product.slug) {
+      return res.status(403).json({
+        status: false,
+        message: 'Tên sản phẩm đã tồn tại',
+      });
+    }
 
     if (!product) {
       return res.status(403).json({
@@ -48,9 +60,9 @@ export const updateProduct = async (req: express.Request, res: express.Response)
     }
 
     //Map cloneFormData from client check value is undefined to update that value
-    Object.keys(newFormData).forEach((key) => {
-      if (newFormData[key] !== undefined) {
-        product[key] = newFormData[key];
+    Object.keys(cloneFormData).forEach((key) => {
+      if (cloneFormData[key] !== undefined) {
+        product[key] = cloneFormData[key];
       }
     });
 
@@ -70,6 +82,7 @@ export const updateProduct = async (req: express.Request, res: express.Response)
   }
 };
 
+// [DELETE] /product/:id
 export const deleteProduct = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
     const { id } = req.params;
@@ -92,6 +105,7 @@ export const deleteProduct = async (req: express.Request, res: express.Response)
   }
 };
 
+// [GET] /products
 export const getAllProducts = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
     const products = await ProductMethods.getProducts();
@@ -117,6 +131,7 @@ export const getAllProducts = async (req: express.Request, res: express.Response
   }
 };
 
+// [GET] /products/search?q=
 export const getProductBySearch = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
     const { q } = req.query;
@@ -151,6 +166,7 @@ export const getProductBySearch = async (req: express.Request, res: express.Resp
   }
 };
 
+// [GET] /product/:slug
 export const getDetailProductBySlug = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
     const { slug } = req.params;

@@ -1,3 +1,4 @@
+import { update } from 'lodash';
 import { Schema, model } from 'mongoose';
 
 const UserSchema = new Schema(
@@ -37,6 +38,6 @@ export const UserMethods = {
     }),
   getUserById: (id: string) => UserModal.findById(id),
   createUser: (values: Record<string, any>) => new UserModal(values).save().then((user) => user.toObject()),
-  deleteUserById: (id: string) => UserModal.findOneAndDelete({ _id: id }),
-  updateUserById: (id: string): any => UserModal.findOneAndUpdate({ _id: id }),
+  updateUserById: (id: string): any => UserModal.findByIdAndUpdate({ _id: id }),
+  deleteUserById: (id: string) => UserModal.findByIdAndDelete({ _id: id }),
 };

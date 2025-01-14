@@ -19,13 +19,15 @@ const ProductSchema = new Schema(
   },
 );
 
+//Transfrom name to slug for product
 ProductSchema.pre('save', function (next) {
   if (this.isModified('name') || this.isNew) {
-    this.slug = slugify(this.name, { lower: true, strict: true }); // Tạo slug từ name
+    if (typeof this.name === 'string') {
+      this.slug = slugify(this.name, { lower: true, strict: true }); // Tạo slug từ name
+    }
   }
   next();
 });
-
 const ProductModel = model('Product', ProductSchema);
 
 export default ProductModel;

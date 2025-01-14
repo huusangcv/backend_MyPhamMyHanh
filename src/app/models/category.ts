@@ -14,6 +14,7 @@ const CategorySchema = new Schema(
   },
 );
 
+//Transfrom name to slug for Category
 CategorySchema.pre('save', function (next) {
   if (this.isModified('name') || this.isNew) {
     if (typeof this.name === 'string') {

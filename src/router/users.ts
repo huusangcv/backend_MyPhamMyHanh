@@ -1,6 +1,6 @@
 import express from 'express';
 import { deleteUser, detailUser, getAllUsers, searchUsers, updateUser } from '../app/controllers/users';
-import { isAdmin, isAuthenticated, isOwner } from '../app/middlewares';
+import { isAdmin, isAuthenticated } from '../app/middlewares';
 import { loginForAdmin, logout } from '../app/controllers/authentication';
 
 //Admin ep: this router for admin
