@@ -1,5 +1,6 @@
 import express from 'express';
 import { UserMethods } from '../models/user';
+
 export const getAllUsers = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
     const users = await UserMethods.getUsers();
@@ -20,6 +21,61 @@ export const getAllUsers = async (req: express.Request, res: express.Response): 
   } catch (error) {
     console.log(error);
     return res.status(500).json({ status: false, message: 'Đã xảy ra lỗi' });
+  }
+};
+
+export const detailUser = async (req: express.Request, res: express.Response): Promise<any> => {
+  try {
+    const { id } = req.params;
+
+    const user = await UserMethods.getUserById(id);
+
+    if (!user) {
+      return res.status(403).json({
+        status: true,
+        message: 'Người dùng không tồn tại',
+      });
+    }
+
+    return res.status(200).json({
+      status: true,
+      message: 'Chi tiết người dùng',
+      user,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      status: false,
+      message: 'Đã có lỗi xảy ra, hãy thử lại sau',
+    });
+  }
+};
+
+export const searchUsers = async (req: express.Request, res: express.Response): Promise<any> => {
+  try {
+    const { q } = req.query;
+
+    const users = await UserMethods.getUsersBySearch(q as string);
+
+    if (users.length > 0) {
+      return res.status(200).json({
+        status: true,
+        message: 'Danh sách người dùng',
+        users,
+      });
+    }
+
+    return res.status(403).json({
+      status: false,
+      message: 'Danh sách người dùng trống',
+    });
+    // const users = await
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      status: false,
+      message: 'Đã xảy ra lỗi, hãy thử lại sau',
+    });
   }
 };
 
@@ -44,35 +100,32 @@ export const deleteUser = async (req: express.Request, res: express.Response): P
 export const updateUser = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
     const { id } = req.params;
-    const { username, address, phone, status } = req.body;
+    const formData = req.body;
 
-    const user = await UserMethods.updateUserById(id);
+    const cloneFormData = { ...formData };
+
+    let user = await UserMethods.updateUserById(id);
 
     if (!user) {
       return res.status(404).json({ status: false, message: 'Người dùng không tồn tại' });
     }
 
-    if (username) {
-      user.username = username;
+    if (cloneFormData._id) {
+      delete cloneFormData._id;
+      return res.status(403).json({ status: false, message: 'Không thể cập nhật trường _id' });
     }
-
-    if (address) {
-      user.address = address;
-    }
-
-    if (phone) {
-      user.phone = phone;
-    }
-
-    if (address) {
-      user.status = status;
-    }
+    //Map cloneFormData from client check value is undefined to update that value
+    Object.keys(cloneFormData).forEach((key) => {
+      if (cloneFormData[key] !== undefined) {
+        user[key] = cloneFormData[key];
+      }
+    });
 
     await user.save();
 
     return res.status(200).json({ status: true, message: 'Cập nhật thành công', user });
   } catch (error) {
     console.log(error);
-    return res.status(500).json({ status: false, message: 'Đã xảy ra lỗi' });
+    return res.status(500).json({ status: false, message: 'Đã xảy ra lỗi', error });
   }
 };

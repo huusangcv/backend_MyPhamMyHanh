@@ -32,6 +32,40 @@ export const isOwner = async (
   }
 };
 
+export const isAdmin = async (
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction,
+): Promise<any> => {
+  try {
+    const currentUserId = get(req, 'identity._id') as string | undefined;
+
+    if (!currentUserId) {
+      return res.status(403).json({
+        status: false,
+        message: 'Không tìm thấy người dùng hiện tại tương ứng',
+      });
+    }
+
+    const user = await UserMethods.getUserById(currentUserId).select('+roles');
+
+    if (!user || user.roles !== 'admin') {
+      return res.status(403).json({
+        status: false,
+        message: 'Không có quyền truy cập',
+      });
+    }
+
+    next(); //If isAdmin allow continue to next func
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      status: false,
+      message: 'Đã có lỗi xảy ra, vui lòng thử lại sau',
+    });
+  }
+};
+
 export const isAuthenticated = async (
   req: express.Request,
   res: express.Response,

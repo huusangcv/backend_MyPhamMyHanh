@@ -30,6 +30,10 @@ export default CategoryModel;
 export const CategoryMethods = {
   getCategories: () => CategoryModel.find(),
   getCategoryBySlug: (slug: string): any => CategoryModel.findOne({ slug }),
+  searchCategories: (query: string) =>
+    CategoryModel.find({
+      $or: [{ name: { $regex: query, $options: 'i' } }],
+    }),
   createCategory: (values: Record<string, any>) =>
     new CategoryModel(values).save().then((category) => category.toObject()),
   updateCategoryById: (id: string): any => CategoryModel.findByIdAndUpdate({ _id: id }),

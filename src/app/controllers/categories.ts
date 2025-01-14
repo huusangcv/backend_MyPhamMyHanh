@@ -144,3 +144,30 @@ export const getCategoryBySlug = async (req: express.Request, res: express.Respo
     });
   }
 };
+
+export const getCategoryBySearch = async (req: express.Request, res: express.Response): Promise<any> => {
+  try {
+    const { q } = req.query;
+
+    const categories = await CategoryMethods.searchCategories(q as string);
+
+    if (categories.length > 0) {
+      return res.status(200).json({
+        status: true,
+        message: `Kết quả tìm kiếm cho: ${q}`,
+        categories,
+      });
+    }
+
+    return res.status(403).json({
+      status: false,
+      message: 'Danh mục trống',
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      status: false,
+      message: 'Đã có lỗi xảy ra, vui lòng thử lại sau',
+    });
+  }
+};

@@ -6,7 +6,7 @@ const UserSchema = new Schema(
     email: { type: String, require: true },
     address: { type: String, default: '' },
     phone: { type: String, default: '' },
-    roles: { type: String, default: 'customer' },
+    roles: { type: String, default: 'customer', select: false },
     status: { type: String, default: 'active' },
     image: { type: String, default: '' },
     authentication: {
@@ -31,8 +31,12 @@ export const UserMethods = {
     UserModal.findOne({
       'authentication.sessionToken': sessionToken,
     }),
+  getUsersBySearch: (query: string) =>
+    UserModal.find({
+      $or: [{ name: { $regex: query, $options: 'i' } }],
+    }),
   getUserById: (id: string) => UserModal.findById(id),
   createUser: (values: Record<string, any>) => new UserModal(values).save().then((user) => user.toObject()),
   deleteUserById: (id: string) => UserModal.findOneAndDelete({ _id: id }),
-  updateUserById: (id: string) => UserModal.findOneAndUpdate({ _id: id }),
+  updateUserById: (id: string): any => UserModal.findOneAndUpdate({ _id: id }),
 };
