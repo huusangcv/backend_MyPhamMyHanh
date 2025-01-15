@@ -6,6 +6,8 @@ import compression from 'compression';
 import cors from 'cors';
 import { connect } from './config/index';
 import router from './router';
+import multer from 'multer';
+import path from 'path';
 const app = express();
 connect();
 
@@ -18,7 +20,7 @@ app.use(
 app.use(compression());
 app.use(cookieParser());
 app.use(bodyParser.json());
-
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 const server = http.createServer(app);
 
 server.listen(8080, () => console.log('Server running on http://localhost:8080/'));

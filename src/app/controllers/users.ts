@@ -1,6 +1,6 @@
 import express from 'express';
 import { UserMethods } from '../models/user';
-
+import path from 'path'
 // [GET] /users
 export const getAllUsers = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
@@ -136,5 +136,37 @@ export const updateUser = async (req: express.Request, res: express.Response): P
   } catch (error) {
     console.log(error);
     return res.status(500).json({ status: false, message: 'Đã xảy ra lỗi', error });
+  }
+};
+
+export const uploadAvatar = async (req: express.Request, res: express.Response): Promise<any> => {
+  try {
+    const { id } = req.params;
+    const imagePath = req.file;
+    const CloneImagePath = `/uploads/profile/${imagePath?.originalname}`;
+    const user = await UserMethods.updateUserById(id);
+
+    if(!user) {
+      return res.status(403).json({
+        status: false,
+        message: "Không tồn tại người dùng cần upload"
+      })
+    }
+
+    user.image = CloneImagePath;
+
+    await user.save();
+
+    return res.status(403).json({
+      status: true,
+      message: 'Cập nhật ảnh đại diện thành công',
+      user,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      status: false,
+      message: 'Đã có lỗi xảy ra, hãy thử lại sau',
+    });
   }
 };

@@ -4,7 +4,7 @@ import { Schema, model } from 'mongoose';
 const UserSchema = new Schema(
   {
     username: { type: String, require: true },
-    email: { type: String, require: true },
+    email: { type: String, require: true, unique: true, match: /.+\@.+\..+/ },
     address: { type: String, default: '' },
     phone: { type: String, default: '' },
     roles: { type: String, default: 'customer', select: false },
