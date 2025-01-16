@@ -6,6 +6,7 @@ import express from 'express';
 export const createProduct = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
     const formData = req.body;
+    const imagesData = req.files;
     const cloneFormData = { ...formData };
     let slug = slugify(cloneFormData.name, { lower: true, strict: true });
 
@@ -18,8 +19,26 @@ export const createProduct = async (req: express.Request, res: express.Response)
       });
     }
 
-    const newProduct = await ProductMethods.createProduct(cloneFormData);
+    let newProduct;
 
+    // check products have images
+    if (imagesData) {
+      const imagesPath = Array.isArray(imagesData)
+        ? imagesData.map((image: any) => `/uploads/products/${image.originalname}`)
+        : [];
+      newProduct = await ProductMethods.createProduct({
+        ...cloneFormData,
+        images: imagesPath,
+      });
+
+      return res.status(200).json({
+        status: true,
+        message: 'Thêm mới sản phẩm thành công',
+        newProduct,
+      });
+    }
+
+    newProduct = await ProductMethods.createProduct(cloneFormData);
     return res.status(200).json({
       status: true,
       message: 'Thêm mới sản phẩm thành công',
@@ -37,19 +56,22 @@ export const createProduct = async (req: express.Request, res: express.Response)
 // [PATCH] /product/:id
 export const updateProduct = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
-    const formData = req.body;
-    const cloneFormData = formData;
     const { id } = req.params;
+    const formData = req.body;
+    const imagesData = req.files;
+    const cloneFormData = { ...formData };
 
     let product = await ProductMethods.updateProductById(id);
 
-    const slug = slugify(cloneFormData.name, { lower: true, strict: true });
+    if (cloneFormData.name) {
+      const slug = slugify(cloneFormData?.name, { lower: true, strict: true });
 
-    if (product && slug === product.slug) {
-      return res.status(403).json({
-        status: false,
-        message: 'Tên sản phẩm đã tồn tại',
-      });
+      if (product && slug === product.slug) {
+        return res.status(403).json({
+          status: false,
+          message: 'Tên sản phẩm đã tồn tại',
+        });
+      }
     }
 
     if (!product) {
@@ -66,12 +88,26 @@ export const updateProduct = async (req: express.Request, res: express.Response)
       }
     });
 
+    // check images from data is array after using map to get imagesPath
+    if (imagesData && Array.isArray(imagesData) && imagesData.length > 0) {
+      const imagesPath = imagesData.map((image: any) => `/uploads/products/${image.originalname}`);
+      product.images = imagesPath;
+      await product.save();
+
+      return res.status(200).json({
+        status: true,
+        message: 'Cập nhật sản phẩm thành công',
+        product,
+      });
+    }
+
     await product.save();
 
     return res.status(200).json({
       status: true,
       message: 'Cập nhật sản phẩm thành công',
       product,
+      formData,
     });
   } catch (error) {
     console.log(error);
@@ -190,45 +226,6 @@ export const getDetailProductBySlug = async (req: express.Request, res: express.
     return res.status(500).json({
       status: false,
       message: 'Đã xảy ra lỗi, hãy thử lại sau',
-    });
-  }
-};
-
-// [POST] /products/upload/photos
-export const uploadPhotos = async (req: express.Request, res: express.Response): Promise<any> => {
-  try {
-    const { id } = req.params;
-
-    const product = await ProductMethods.updateProductById(id);
-
-    if (!product) {
-      return res.status(404).json({
-        status: false,
-        message: 'Không tìm thấy sản phẩm tương ứng',
-      });
-    }
-    const formDataImages = req.files;
-    const cloneFormDataImages = formDataImages;
-
-    let imagesPath: Express.Multer.File[] = [];
-    if (Array.isArray(cloneFormDataImages)) {
-      imagesPath = cloneFormDataImages.filter((image: any) => `/uploads/products/${image.originalname.originalname}`);
-    }
-
-    product.images = imagesPath;
-
-    product.save();
-
-    return res.status(200).json({
-      status: true,
-      message: 'Upload ảnh sản phẩm thành công',
-      product,
-    });
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({
-      status: false,
-      message: 'Đã xảy ra lỗi khi upload, vui lòng thử lại',
     });
   }
 };

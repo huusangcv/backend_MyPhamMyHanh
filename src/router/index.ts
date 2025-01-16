@@ -5,6 +5,7 @@ import products from './products';
 import categories from './categories';
 import genres from './genres';
 import news from './news';
+import certificates from './certificates';
 const router = express.Router();
 
 export default (): express.Router => {
@@ -14,5 +15,6 @@ export default (): express.Router => {
   categories(router);
   genres(router);
   news(router);
+  certificates(router);
   return router;
 };

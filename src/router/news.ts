@@ -16,7 +16,7 @@ export default (router: express.Router) => {
   router.get('/news/search', searchNews);
   router.get('/news/:slug', detailNews);
 
-  router.post('/news/upload/thumb/:id', uploadNewsThumb.single('thumb'), isAuthenticated, isAdmin, uploadThumb);
+  router.post('/news/upload/thumb/:id', isAuthenticated, isAdmin, uploadNewsThumb.single('thumb'), uploadThumb);
   router.post('/news', isAuthenticated, isAdmin, createNews);
   router.patch('/news/:id', isAuthenticated, isAdmin, updateNews);
   router.delete('/news/:id', isAuthenticated, isAdmin, deleteNews);

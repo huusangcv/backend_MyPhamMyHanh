@@ -5,7 +5,6 @@ import {
   getDetailProductBySlug,
   getProductBySearch,
   updateProduct,
-  uploadPhotos,
 } from '../app/controllers/products';
 import express from 'express';
 import { isAdmin, isAuthenticated } from '../app/middlewares';
@@ -17,8 +16,7 @@ export default (router: express.Router) => {
   router.get('/product/:slug', getDetailProductBySlug);
 
   // These routers are admin to allow continue
-  router.post('/products', isAuthenticated, isAdmin, createProduct);
-  router.post('/products/upload/photos/:id', uploadProductPhotos.array('photos', 12), uploadPhotos);
-  router.patch('/product/:id', isAuthenticated, isAdmin, updateProduct);
+  router.post('/products', isAuthenticated, isAdmin, uploadProductPhotos.array('photos', 12), createProduct);
+  router.patch('/product/:id',isAuthenticated, isAdmin,  uploadProductPhotos.array('photos', 12), updateProduct);
   router.delete('/product/:id', isAuthenticated, isAdmin, deleteProduct);
 };
