@@ -4,6 +4,7 @@ import users from './users';
 import products from './products';
 import categories from './categories';
 import genres from './genres';
+import news from './news';
 const router = express.Router();
 
 export default (): express.Router => {
@@ -12,5 +13,6 @@ export default (): express.Router => {
   products(router);
   categories(router);
   genres(router);
+  news(router);
   return router;
 };

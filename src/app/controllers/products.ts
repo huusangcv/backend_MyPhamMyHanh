@@ -6,7 +6,7 @@ import express from 'express';
 export const createProduct = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
     const formData = req.body;
-    const cloneFormData = formData;
+    const cloneFormData = { ...formData };
     let slug = slugify(cloneFormData.name, { lower: true, strict: true });
 
     const exsitingProduct = await ProductMethods.getProductBySlug(slug);
@@ -190,6 +190,45 @@ export const getDetailProductBySlug = async (req: express.Request, res: express.
     return res.status(500).json({
       status: false,
       message: 'Đã xảy ra lỗi, hãy thử lại sau',
+    });
+  }
+};
+
+// [POST] /products/upload/photos
+export const uploadPhotos = async (req: express.Request, res: express.Response): Promise<any> => {
+  try {
+    const { id } = req.params;
+
+    const product = await ProductMethods.updateProductById(id);
+
+    if (!product) {
+      return res.status(404).json({
+        status: false,
+        message: 'Không tìm thấy sản phẩm tương ứng',
+      });
+    }
+    const formDataImages = req.files;
+    const cloneFormDataImages = formDataImages;
+
+    let imagesPath: Express.Multer.File[] = [];
+    if (Array.isArray(cloneFormDataImages)) {
+      imagesPath = cloneFormDataImages.filter((image: any) => `/uploads/products/${image.originalname.originalname}`);
+    }
+
+    product.images = imagesPath;
+
+    product.save();
+
+    return res.status(200).json({
+      status: true,
+      message: 'Upload ảnh sản phẩm thành công',
+      product,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      status: false,
+      message: 'Đã xảy ra lỗi khi upload, vui lòng thử lại',
     });
   }
 };

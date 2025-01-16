@@ -1,6 +1,6 @@
 import express from 'express';
 import { UserMethods } from '../models/user';
-import path from 'path'
+import path from 'path';
 // [GET] /users
 export const getAllUsers = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
@@ -146,11 +146,11 @@ export const uploadAvatar = async (req: express.Request, res: express.Response):
     const CloneImagePath = `/uploads/profile/${imagePath?.originalname}`;
     const user = await UserMethods.updateUserById(id);
 
-    if(!user) {
+    if (!user) {
       return res.status(403).json({
         status: false,
-        message: "Không tồn tại người dùng cần upload"
-      })
+        message: 'Không tồn tại người dùng cần upload',
+      });
     }
 
     user.image = CloneImagePath;

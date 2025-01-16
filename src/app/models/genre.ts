@@ -3,7 +3,7 @@ import slugify from 'slugify';
 
 const GenreSchema = new Schema(
   {
-    name: { type: String },
+    name: { type: String, unique: true },
     slug: { type: String, unique: true },
     status: { type: Boolean, default: true },
   },

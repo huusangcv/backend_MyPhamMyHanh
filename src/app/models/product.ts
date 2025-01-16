@@ -8,7 +8,7 @@ const ProductSchema = new Schema(
     category_id: { type: String, require: true },
     note: { type: String, default: '' },
     description: { type: String, require: true },
-    image: { type: String, require: true, default: '' },
+    images: { type: Object, require: true, default: [] },
     status: { type: Boolean, require: true, default: true },
     sold: { type: Number, default: 0, min: 0 },
     bestseller: { type: Boolean, default: false },
