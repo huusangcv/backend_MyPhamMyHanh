@@ -15,7 +15,7 @@ export default (router: express.Router) => {
   router.get('/certificates/search', searchCertificates);
   router.get('/certificate/:id', detailCertificate);
 
-  router.post('/certificates',isAuthenticated, isAdmin, uploadCertificateImage.single('image'), createCertificate);
+  router.post('/certificates', isAuthenticated, isAdmin, uploadCertificateImage.single('image'), createCertificate);
   router.patch('/certificate/:id', isAuthenticated, isAdmin, uploadCertificateImage.single('image'), updateCertificate);
   router.delete('/certificate/:id', isAuthenticated, isAdmin, deleteCertificate);
 };

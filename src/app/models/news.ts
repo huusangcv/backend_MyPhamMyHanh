@@ -2,7 +2,7 @@ import { Schema, model } from 'mongoose';
 import slugify from 'slugify';
 const NewsSchema = new Schema(
   {
-    title: { type: String },
+    title: { type: String, require: true },
     content: { type: String },
     image: { type: String, trim: true },
     view: { type: Number, default: 0 },

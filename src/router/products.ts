@@ -17,6 +17,6 @@ export default (router: express.Router) => {
 
   // These routers are admin to allow continue
   router.post('/products', isAuthenticated, isAdmin, uploadProductPhotos.array('photos', 12), createProduct);
-  router.patch('/product/:id',isAuthenticated, isAdmin,  uploadProductPhotos.array('photos', 12), updateProduct);
+  router.patch('/product/:id', isAuthenticated, isAdmin, uploadProductPhotos.array('photos', 12), updateProduct);
   router.delete('/product/:id', isAuthenticated, isAdmin, deleteProduct);
 };

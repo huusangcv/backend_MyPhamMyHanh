@@ -6,6 +6,7 @@ import slugify from 'slugify';
 export const createNews = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
     const formData = req.body;
+    const imageData = req.file;
     const cloneFormData = { ...formData };
 
     const slug = slugify(cloneFormData.title, { lower: true, strict: true });
@@ -18,8 +19,23 @@ export const createNews = async (req: express.Request, res: express.Response): P
       });
     }
 
-    const news = await NewsMethods.createNews(cloneFormData);
+    let news;
 
+    if (imageData) {
+      const imagePath = `/upload/news/thumb/${imageData?.originalname}`;
+      let news = await NewsMethods.createNews({
+        ...cloneFormData,
+        image: imagePath,
+      });
+
+      return res.status(200).json({
+        status: true,
+        message: 'Tạo mới tin tức thành công',
+        news,
+      });
+    }
+
+    news = await NewsMethods.createNews(cloneFormData);
     return res.status(200).json({
       status: true,
       message: 'Tạo mới tin tức thành công',
@@ -39,6 +55,7 @@ export const updateNews = async (req: express.Request, res: express.Response): P
   try {
     const { id } = req.params;
     const formData = req.body;
+    const imageData = req.file;
     const cloneFormData = { ...formData };
     let news = await NewsMethods.updateNewsById(id);
 
@@ -46,6 +63,18 @@ export const updateNews = async (req: express.Request, res: express.Response): P
       return res.status(403).json({
         status: false,
         message: 'Không tồn tại tin tức tương ứng',
+      });
+    }
+
+    if (imageData) {
+      const imagePath = `/upload/news/thumb/${imageData?.originalname}`;
+      news.image = imagePath;
+      await news.save();
+
+      return res.status(200).json({
+        status: true,
+        message: 'Cập nhật tin tức thành công',
+        news,
       });
     }
 
@@ -182,41 +211,6 @@ export const detailNews = async (req: express.Request, res: express.Response): P
     return res.status(500).json({
       status: false,
       message: 'Đã xảy ra lỗi, vui lòng thử lại',
-    });
-  }
-};
-
-// [POST] /news/upload/thumb
-export const uploadThumb = async (req: express.Request, res: express.Response): Promise<any> => {
-  try {
-    const { id } = req.params;
-    const formData = req.file;
-    const imagePath = `/upload/news/thumb/${formData?.originalname}`;
-
-    let news = await NewsMethods.updateNewsById(id);
-
-    if (!news) {
-      return res.status(403).json({
-        status: false,
-        message: 'Tin tức không tồn tại',
-      });
-    }
-
-    news.image = imagePath;
-
-    news.save();
-
-    return res.status(200).json({
-      status: true,
-      message: 'Upload thumbnail thành công',
-      imagePath: `http://localhost:8080/${imagePath}`,
-      news,
-    });
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({
-      status: false,
-      message: 'Đã xảy ra lỗi khi upload, vui lòng thử lại',
     });
   }
 };
