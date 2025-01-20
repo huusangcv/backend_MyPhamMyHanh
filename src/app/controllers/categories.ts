@@ -100,13 +100,13 @@ export const deleteCategory = async (req: express.Request, res: express.Response
 // [GET] /categories
 export const getAllCategory = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
-    const category = await CategoryMethods.getCategories();
+    const categories = await CategoryMethods.getCategories();
 
-    if (category.length > 0) {
+    if (categories.length > 0) {
       return res.status(200).json({
         status: true,
         message: 'Danh mục sản phẩm',
-        category,
+        categories,
       });
     }
 

@@ -1,5 +1,5 @@
 import slugify from 'slugify';
-import { ProductMethods } from '../models/product';
+import ProductModel, { ProductMethods } from '../models/product';
 import express from 'express';
 
 // [POST] /products
@@ -203,7 +203,7 @@ export const getProductBySearch = async (req: express.Request, res: express.Resp
 };
 
 // [GET] /product/:slug
-export const getDetailProductBySlug = async (req: express.Request, res: express.Response): Promise<any> => {
+export const getOne = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
     const { slug } = req.params;
 
@@ -229,3 +229,42 @@ export const getDetailProductBySlug = async (req: express.Request, res: express.
     });
   }
 };
+
+
+// [GET] /products?page=&limit=
+export const getProductsOncePage = async (req: express.Request, res: express.Response):Promise<any> => {
+  try {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const skip = (page - 1) * limit
+
+    const products = await ProductModel.find().skip(skip).limit(limit)
+
+    const total = await ProductModel.countDocuments()
+    const totalPages = Math.ceil(total / limit)
+
+    if(products.length > 0) {
+      return res.status(200).json({
+        status: true,
+        message: `Danh sách sản phẩm trang: ${page}`,
+        products,
+        total,
+        totalPages,
+        currentPage: page
+      })
+    }
+
+    return res.status(200).json({
+      status: false,
+      message: `Không có sản phẩm ở trang này`,
+    })
+
+    
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({
+      status: false,
+      message: "Đã có lỗi xảy ra, hãy thử lại sau"
+    })
+  }
+} 
