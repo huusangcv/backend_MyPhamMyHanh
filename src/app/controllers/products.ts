@@ -97,7 +97,7 @@ export const updateProduct = async (req: express.Request, res: express.Response)
       return res.status(200).json({
         status: true,
         message: 'Cập nhật sản phẩm thành công',
-        product,
+        data: product,
       });
     }
 
@@ -130,7 +130,7 @@ export const deleteProduct = async (req: express.Request, res: express.Response)
     return res.status(200).json({
       status: true,
       message: 'Xoá sản phẩm thành công',
-      products,
+      data: products,
     });
   } catch (error) {
     console.log(error);
@@ -150,7 +150,7 @@ export const getAllProducts = async (req: express.Request, res: express.Response
       return res.status(200).json({
         status: true,
         message: 'Lấy danh sách sản phẩm thành công',
-        products,
+        data: products,
       });
     }
 
@@ -185,7 +185,7 @@ export const getProductBySearch = async (req: express.Request, res: express.Resp
       return res.status(200).json({
         status: true,
         message: `Sản phẩm tìm kiểm cho: ${q}`,
-        products,
+        data: products,
       });
     }
 
@@ -202,7 +202,7 @@ export const getProductBySearch = async (req: express.Request, res: express.Resp
   }
 };
 
-// [GET] /product/:slug
+// [GET] /products/:slug
 export const getOne = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
     const { slug } = req.params;
@@ -219,7 +219,7 @@ export const getOne = async (req: express.Request, res: express.Response): Promi
     return res.status(200).json({
       status: true,
       message: 'Sản phẩm chi tiết',
-      product,
+      data: product,
     });
   } catch (error) {
     console.log(error);
@@ -235,7 +235,7 @@ export const getOne = async (req: express.Request, res: express.Response): Promi
 export const getProductsOncePage = async (req: express.Request, res: express.Response):Promise<any> => {
   try {
     const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 10;
+    const limit = parseInt(req.query.limit as string) || 1;
     const skip = (page - 1) * limit
 
     const products = await ProductModel.find().skip(skip).limit(limit)
@@ -247,7 +247,7 @@ export const getProductsOncePage = async (req: express.Request, res: express.Res
       return res.status(200).json({
         status: true,
         message: `Danh sách sản phẩm trang: ${page}`,
-        products,
+        data: products,
         total,
         totalPages,
         currentPage: page
