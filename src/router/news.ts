@@ -5,6 +5,7 @@ import {
   detailNews,
   deleteNews,
   updateNews,
+  uploadImageForContent,
 } from '../app/controllers/news';
 import express from 'express';
 import { uploadNewsThumb } from '../utils';
@@ -15,7 +16,8 @@ export default (router: express.Router) => {
   router.get('/news/search', searchNews);
   router.get('/news/:slug', detailNews);
 
-  router.post('/news', isAuthenticated, isAdmin,uploadNewsThumb.single('thumb'), createNews);
-  router.patch('/news/:id', isAuthenticated, isAdmin,uploadNewsThumb.single('thumb'), updateNews);
-  router.delete('/news/:id', isAuthenticated, isAdmin, deleteNews);
+  router.post('/news/uploads/photo',uploadNewsThumb.single('file'),  uploadImageForContent);
+  router.post('/news', uploadNewsThumb.single('thumb'), createNews);
+  router.patch('/news/:id', uploadNewsThumb.single('thumb'), updateNews);
+  router.delete('/news/:id',  deleteNews);
 };

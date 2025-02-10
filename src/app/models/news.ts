@@ -7,7 +7,7 @@ const NewsSchema = new Schema(
     image: { type: String, trim: true },
     view: { type: Number, default: 0 },
     author: { type: String },
-    tags: { type: [String], default: [] },
+    tag_id: { type: String},
     slug: { type: String, unique: true },
     status: { type: Boolean, default: true },
   },

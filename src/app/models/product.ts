@@ -2,15 +2,16 @@ import { Schema, model, plugin } from 'mongoose';
 const slugify = require('slugify');
 const ProductSchema = new Schema(
   {
-    name: { type: String, require: true },
+    name: { type: String, required: true },
     slug: { type: String, unique: true },
-    price: { type: Number, require: true, min: 0 },
-    category_id: { type: String, require: true },
+    price: { type: Number, required: true, min: 0 },
+    category_id: { type: String, required: true },
     note: { type: String, default: '' },
-    description: { type: String, require: true },
-    images: { type: Object, require: true, default: [] },
-    status: { type: Boolean, require: true, default: true },
+    description: { type: String, required: true },
+    images: { type: Object, required: true, default: [] },
+    status: { type: Boolean, required: true, default: true },
     sold: { type: Number, default: 0, min: 0 },
+    quantity: {type: Number,required: true, min: 0 },
     bestseller: { type: Boolean, default: false },
     discount: { type: Number, default: 0 },
   },

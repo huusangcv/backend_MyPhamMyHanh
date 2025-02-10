@@ -1,3 +1,4 @@
+import ProductModel from '../models/product';
 import { CategoryMethods } from '../models/category';
 import express from 'express';
 import slugify from 'slugify';
@@ -13,7 +14,7 @@ export const createCategory = async (req: express.Request, res: express.Response
     const existingCategory = await CategoryMethods.getCategoryBySlug(slug);
 
     if (existingCategory) {
-      return res.status(403).json({
+      return res.status(400).json({
         status: false,
         message: 'Danh mục sản phẩm đã tồn tại',
       });
@@ -24,7 +25,7 @@ export const createCategory = async (req: express.Request, res: express.Response
     return res.status(200).json({
       status: true,
       message: 'Tạo mới danh mục thành công',
-      newCategory,
+      data: newCategory,
     });
   } catch (error) {
     console.log(error);
@@ -41,6 +42,15 @@ export const updateCategory = async (req: express.Request, res: express.Response
     const { id } = req.params;
     const formData = req.body;
     const cloneFormData = formData;
+
+    const product = await ProductModel.findOne({category_id: id})
+
+    if(product) {
+      return res.status(403).json({
+        status: false,
+        message: 'Tồn tại sản phẩm thuộc danh mục này',
+      });
+    }
 
     let category = await CategoryMethods.updateCategoryById(id);
 
@@ -63,7 +73,7 @@ export const updateCategory = async (req: express.Request, res: express.Response
     return res.status(200).json({
       status: true,
       message: 'Cập nhật danh mục thành công',
-      category,
+      data: category,
     });
   } catch (error) {
     console.log(error);
@@ -79,14 +89,23 @@ export const deleteCategory = async (req: express.Request, res: express.Response
   try {
     const { id } = req.params;
 
+    const product = await ProductModel.findOne({category_id: id})
+
+    if(product) {
+      return res.status(403).json({
+        status: false,
+        message: 'Tồn tại sản phẩm thuộc danh mục này',
+      });
+    }
+
     await CategoryMethods.deleteCategoryById(id);
 
-    const category = await CategoryMethods.getCategories();
+    const categories = await CategoryMethods.getCategories();
 
     return res.status(200).json({
       status: true,
       message: 'Xoá danh mục thành công',
-      category,
+      data: categories,
     });
   } catch (error) {
     console.log(error);
@@ -106,7 +125,7 @@ export const getAllCategory = async (req: express.Request, res: express.Response
       return res.status(200).json({
         status: true,
         message: 'Danh mục sản phẩm',
-        categories,
+        data: categories,
       });
     }
 
@@ -139,7 +158,7 @@ export const getCategoryBySlug = async (req: express.Request, res: express.Respo
     return res.status(200).json({
       status: true,
       message: 'Chi tiết danh mục',
-      category,
+      data: category,
     });
   } catch (error) {
     console.log(error);
@@ -161,7 +180,7 @@ export const getCategoryBySearch = async (req: express.Request, res: express.Res
       return res.status(200).json({
         status: true,
         message: `Kết quả tìm kiếm cho: ${q}`,
-        categories,
+        data: categories,
       });
     }
 
@@ -177,3 +196,4 @@ export const getCategoryBySearch = async (req: express.Request, res: express.Res
     });
   }
 };
+

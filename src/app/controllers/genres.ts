@@ -1,6 +1,7 @@
 import slugify from 'slugify';
 import { GenreMethods } from '../models/genre';
 import express from 'express';
+import NewsModal from '../models/news';
 
 // [POST] /genres
 export const createGenre = async (req: express.Request, res: express.Response): Promise<any> => {
@@ -15,7 +16,7 @@ export const createGenre = async (req: express.Request, res: express.Response): 
     if (genre) {
       return res.status(403).json({
         status: false,
-        message: 'Danh mục đã tồn tại',
+        message: 'Chuyên mục đã tồn tại',
       });
     }
 
@@ -23,7 +24,7 @@ export const createGenre = async (req: express.Request, res: express.Response): 
     return res.status(200).json({
       status: true,
       message: 'Tạo mới thể loại bài viết thành công',
-      newGenre,
+      data: newGenre,
     });
   } catch (error) {
     console.log(error);
@@ -42,15 +43,17 @@ export const updateGenre = async (req: express.Request, res: express.Response): 
     const formData = req.body;
     const cloneFormData = { ...formData };
 
-    const slug = slugify(cloneFormData.name, { lower: true, strict: true });
-
     let genre = await GenreMethods.updateGenreById(id);
 
-    if (genre && slug === genre.slug) {
-      return res.status(403).json({
-        status: false,
-        message: 'Tên thể loại đã tồn tại',
-      });
+    if (cloneFormData.name){
+      const slug = slugify(cloneFormData.name, { lower: true, strict: true });
+
+      if (genre && slug === genre.slug) {
+        return res.status(403).json({
+          status: false,
+          message: 'Tên thể loại đã tồn tại',
+        });
+      }
     }
 
     if (!genre) {
@@ -80,7 +83,7 @@ export const updateGenre = async (req: express.Request, res: express.Response): 
     return res.status(200).json({
       status: true,
       message: 'Cập nhật thể loại bài viết thành công',
-      genre,
+      data: genre,
     });
   } catch (error) {
     console.log(error);
@@ -96,6 +99,15 @@ export const updateGenre = async (req: express.Request, res: express.Response): 
 export const deleteGenre = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
     const { id } = req.params;
+
+    const news = await NewsModal.findOne({tag_id: id})
+
+    if(news) {
+        return res.status(403).json({
+          status: false,
+          message: 'Tồn tại tin tức thuộc chuyên mục này',
+        });
+    }
 
     const genre = await GenreMethods.getGenreById(id);
 
@@ -113,7 +125,7 @@ export const deleteGenre = async (req: express.Request, res: express.Response): 
     return res.status(200).json({
       status: true,
       message: 'Xoá thể loại bài viết thành công',
-      genres,
+      data: genres,
     });
   } catch (error) {
     console.log(error);
@@ -134,13 +146,13 @@ export const getAllGenres = async (req: express.Request, res: express.Response):
       return res.status(200).json({
         status: true,
         message: 'Danh sách thể loại bài viết',
-        genres,
+        data: genres,
       });
     }
 
     return res.status(403).json({
       status: false,
-      message: 'Danh sách thể loai bài viết trống',
+      message: 'Danh sách thể loại bài viết trống',
     });
   } catch (error) {
     console.log(error);
@@ -170,7 +182,7 @@ export const getGenresBySearch = async (req: express.Request, res: express.Respo
       return res.status(200).json({
         status: true,
         message: `Thể loại theo: ${q}`,
-        genres,
+        data: genres,
       });
     }
 
@@ -204,7 +216,7 @@ export const getDetailGenre = async (req: express.Request, res: express.Response
     return res.status(200).json({
       status: true,
       message: 'Chi tiết thể loại bài viết',
-      genre,
+      data: genre,
     });
   } catch (error) {
     console.log(error);

@@ -1,3 +1,4 @@
+import GenreModal from '../models/genre';
 import { NewsMethods } from '../models/news';
 import express from 'express';
 import slugify from 'slugify';
@@ -19,11 +20,9 @@ export const createNews = async (req: express.Request, res: express.Response): P
       });
     }
 
-    let news;
-
     if (imageData) {
-      const imagePath = `/upload/news/thumb/${imageData?.originalname}`;
-      let news = await NewsMethods.createNews({
+      const imagePath = `/uploads/news/${imageData?.originalname}`;
+      const news = await NewsMethods.createNews({
         ...cloneFormData,
         image: imagePath,
       });
@@ -31,15 +30,15 @@ export const createNews = async (req: express.Request, res: express.Response): P
       return res.status(200).json({
         status: true,
         message: 'Tạo mới tin tức thành công',
-        news,
+        data: news,
       });
     }
 
-    news = await NewsMethods.createNews(cloneFormData);
+   const news = await NewsMethods.createNews(cloneFormData);
     return res.status(200).json({
       status: true,
       message: 'Tạo mới tin tức thành công',
-      news,
+      data: news,
     });
   } catch (error) {
     console.log(error);
@@ -67,14 +66,14 @@ export const updateNews = async (req: express.Request, res: express.Response): P
     }
 
     if (imageData) {
-      const imagePath = `/upload/news/thumb/${imageData?.originalname}`;
+      const imagePath = `/uploads/news/${imageData?.originalname}`;
       news.image = imagePath;
       await news.save();
 
       return res.status(200).json({
         status: true,
         message: 'Cập nhật tin tức thành công',
-        news,
+        data: news,
       });
     }
 
@@ -89,7 +88,7 @@ export const updateNews = async (req: express.Request, res: express.Response): P
     return res.status(200).json({
       status: true,
       message: 'Cập nhật tin tức thành công',
-      news,
+      data: news,
     });
   } catch (error) {
     console.log(error);
@@ -111,7 +110,7 @@ export const deleteNews = async (req: express.Request, res: express.Response): P
     return res.status(200).json({
       status: true,
       message: 'Xoá tin tức thành công',
-      news,
+      data: news,
     });
   } catch (error) {
     console.log(error);
@@ -131,7 +130,7 @@ export const getAllNews = async (req: express.Request, res: express.Response): P
       return res.status(200).json({
         status: true,
         message: 'Danh sách tin tức',
-        news,
+        data: news,
       });
     }
 
@@ -166,7 +165,7 @@ export const searchNews = async (req: express.Request, res: express.Response): P
       return res.status(200).json({
         status: true,
         message: `Danh sách tin tức tìm kiếm theo: ${q}`,
-        news,
+        data: news,
       });
     }
 
@@ -204,7 +203,7 @@ export const detailNews = async (req: express.Request, res: express.Response): P
     return res.status(200).json({
       status: true,
       message: 'Chi tiết tin tức',
-      news,
+      data: news,
     });
   } catch (error) {
     console.log(error);
@@ -214,3 +213,23 @@ export const detailNews = async (req: express.Request, res: express.Response): P
     });
   }
 };
+
+// [POST] /news/uploads/photo
+export const uploadImageForContent = async (req: express.Request, res: express.Response): Promise<any> => {
+  try {
+    const imageData = req.file;
+   
+    return res.json({
+      status: true,
+      message: 'Upload ảnh thành công',
+      data: `/uploads/news/${imageData?.originalname}`,
+    })
+   
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({
+      status: false,
+      message: "Đã có lỗi xảy ra, hãy thử lại sau"
+    })
+  }
+}

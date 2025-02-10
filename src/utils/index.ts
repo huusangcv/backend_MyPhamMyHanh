@@ -4,7 +4,7 @@ import express from 'express';
 export const uploadProfile = multer({
   storage: multer.diskStorage({
     destination: function (req, file, cb) {
-      cb(null, 'src/uploads/profile');
+      cb(null, 'src/uploads/profile/');
     },
     filename: function (req, file, cb) {
       cb(null, file.originalname);
@@ -16,7 +16,7 @@ export const uploadProfile = multer({
 export const uploadProductPhotos = multer({
   storage: multer.diskStorage({
     destination: function (req, files, cb) {
-      cb(null, 'src/uploads/products');
+      cb(null, 'src/uploads/products/');
     },
     filename: function (req, files, cb) {
       cb(null, files.originalname);
@@ -27,7 +27,7 @@ export const uploadProductPhotos = multer({
 export const uploadNewsThumb = multer({
   storage: multer.diskStorage({
     destination: (req: express.Request, file, cb) => {
-      cb(null, 'src/uploads/news/thumbs');
+      cb(null, 'src/uploads/news/');
     },
     filename: (req: express.Request, file, cb) => {
       cb(null, file.originalname);
@@ -38,7 +38,7 @@ export const uploadNewsThumb = multer({
 export const uploadCertificateImage = multer({
   storage: multer.diskStorage({
     destination: (req: express.Request, file, cb) => {
-      cb(null, 'src/uploads/certificates');
+      cb(null, 'src/uploads/certificates/');
     },
     filename: (req: express.Request, file, cb) => {
       cb(null, file.originalname);

@@ -28,7 +28,7 @@ export const createCertificate = async (req: express.Request, res: express.Respo
       return res.status(200).json({
         status: true,
         message: 'Thêm mới bằng khen thành công',
-        certificate,
+        data: certificate,
       });
     }
 
@@ -36,7 +36,7 @@ export const createCertificate = async (req: express.Request, res: express.Respo
     return res.status(200).json({
       status: true,
       message: 'Thêm mới bằng khen thành công',
-      certificate,
+      data: certificate,
     });
   } catch (error) {
     console.log(error);
@@ -70,7 +70,7 @@ export const updateCertificate = async (req: express.Request, res: express.Respo
       return res.status(200).json({
         status: true,
         message: 'Cập nhật bằng khen thành công',
-        certificate,
+        data: certificate,
       });
     }
 
@@ -85,7 +85,7 @@ export const updateCertificate = async (req: express.Request, res: express.Respo
     return res.status(200).json({
       status: true,
       message: 'Cập nhật bằng khen thành công',
-      certificate,
+      data: certificate,
     });
   } catch (error) {
     console.log(error);
@@ -107,7 +107,7 @@ export const deleteCertificate = async (req: express.Request, res: express.Respo
     return res.status(200).json({
       status: true,
       message: 'Xoá bằng khen thành công',
-      certificates,
+      data: certificates,
     });
   } catch (error) {
     console.log(error);
@@ -127,7 +127,7 @@ export const getAllCertificates = async (req: express.Request, res: express.Resp
       return res.status(200).json({
         status: true,
         message: 'Danh sách bằng khen',
-        certificates,
+        data: certificates,
       });
     }
 
@@ -161,7 +161,7 @@ export const searchCertificates = async (req: express.Request, res: express.Resp
     return res.status(200).json({
       status: true,
       messgae: `Kết quả tìm kiếm cho: ${q}`,
-      certificates,
+      data: certificates,
     });
   } catch (error) {
     console.log(error);
@@ -189,7 +189,7 @@ export const detailCertificate = async (req: express.Request, res: express.Respo
     return res.status(200).json({
       status: true,
       message: 'Chi tiết bằng khen',
-      certificate,
+      data: certificate,
     });
   } catch (error) {
     console.log(error);
@@ -199,3 +199,23 @@ export const detailCertificate = async (req: express.Request, res: express.Respo
     });
   }
 };
+
+// [POST] /certificates/uploads/photo
+export const uploadImage = async (req: express.Request, res: express.Response): Promise<any> => {
+  try {
+    const imageData = req.file;
+   
+    return res.json({
+      status: true,
+      message: 'Upload ảnh thành công',
+      data: `/uploads/certificates/${imageData?.originalname}`,
+    })
+   
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({
+      status: false,
+      message: "Đã có lỗi xảy ra, hãy thử lại sau"
+    })
+  }
+}

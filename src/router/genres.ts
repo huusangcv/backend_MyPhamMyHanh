@@ -10,12 +10,12 @@ import { isAdmin, isAuthenticated } from '../app/middlewares';
 import express from 'express';
 
 export default (router: express.Router) => {
-  router.get('/genres', getAllGenres);
+  router.get('/genres/:slug', getDetailGenre);
   router.get('/genres/search', getGenresBySearch);
-  router.get('/genre/:slug', getDetailGenre);
+  router.get('/genres', getAllGenres);
 
   //These routers are admin
-  router.post('/genres', isAuthenticated, isAdmin, createGenre);
-  router.patch('/genre/:id', isAuthenticated, isAdmin, updateGenre);
-  router.delete('/genre/:id', isAuthenticated, isAdmin, deleteGenre);
+  router.post('/genres', createGenre);
+  router.patch('/genres/:id', updateGenre);
+  router.delete('/genres/:id', deleteGenre);
 };

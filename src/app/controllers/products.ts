@@ -2,6 +2,7 @@ import slugify from 'slugify';
 import ProductModel, { ProductMethods } from '../models/product';
 import express from 'express';
 
+
 // [POST] /products
 export const createProduct = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
@@ -106,8 +107,7 @@ export const updateProduct = async (req: express.Request, res: express.Response)
     return res.status(200).json({
       status: true,
       message: 'Cập nhật sản phẩm thành công',
-      product,
-      formData,
+      data: product,
     });
   } catch (error) {
     console.log(error);
@@ -230,12 +230,11 @@ export const getOne = async (req: express.Request, res: express.Response): Promi
   }
 };
 
-
 // [GET] /products?page=&limit=
 export const getProductsOncePage = async (req: express.Request, res: express.Response):Promise<any> => {
   try {
     const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
     const skip = (page - 1) * limit
 
     const products = await ProductModel.find().skip(skip).limit(limit)
@@ -268,3 +267,46 @@ export const getProductsOncePage = async (req: express.Request, res: express.Res
     })
   }
 } 
+
+// [POST] /products/uploads/photo
+export const uploadImageForDescription = async (req: express.Request, res: express.Response): Promise<any> => {
+  try {
+    const imageData = req.file;
+   
+    return res.json({
+      status: true,
+      message: 'Upload ảnh sản phẩm thành công',
+      data: `/uploads/products/${imageData?.originalname}`,
+    })
+   
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({
+      status: false,
+      message: "Đã có lỗi xảy ra, hãy thử lại sau"
+    })
+  }
+}
+// [POST] /products/uploads/photos 
+export const uploadImagesProduct = async (req: express.Request, res: express.Response): Promise<any> => {
+  try {
+    const imagesData = req.files;
+
+    if (imagesData && Array.isArray(imagesData) && imagesData.length > 0) {
+      const imagesPath = imagesData.map((image: any) => `/uploads/products/${image.originalname}`);
+
+      return res.status(200).json({
+        status: true,
+        message: 'Upload ảnh sản phẩm thành công',
+        data: imagesPath
+      });
+    }
+
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({
+      status: false,
+      message: "Đã có lỗi xảy ra, hãy thử lại sau"
+    })
+  }
+}

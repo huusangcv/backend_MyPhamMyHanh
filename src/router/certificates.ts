@@ -5,17 +5,20 @@ import {
   getAllCertificates,
   searchCertificates,
   updateCertificate,
+  uploadImage,
 } from '../app/controllers/certificates';
 import express from 'express';
 import { uploadCertificateImage } from '../utils';
 import { isAdmin, isAuthenticated } from '../app/middlewares';
 
 export default (router: express.Router) => {
-  router.get('/certificates', getAllCertificates);
   router.get('/certificates/search', searchCertificates);
-  router.get('/certificate/:id', detailCertificate);
+  router.get('/certificates/:id', detailCertificate);
+  router.get('/certificates', getAllCertificates);
 
-  router.post('/certificates', isAuthenticated, isAdmin, uploadCertificateImage.single('image'), createCertificate);
-  router.patch('/certificate/:id', isAuthenticated, isAdmin, uploadCertificateImage.single('image'), updateCertificate);
-  router.delete('/certificate/:id', isAuthenticated, isAdmin, deleteCertificate);
+  //Router for admin
+  router.post('/certificates/uploads/photo',uploadCertificateImage.single('file'),  uploadImage);
+  router.post('/certificates',  uploadCertificateImage.single('image'), createCertificate);
+  router.patch('/certificates/:id',  uploadCertificateImage.single('image'), updateCertificate);
+  router.delete('/certificates/:id',  deleteCertificate);
 };
