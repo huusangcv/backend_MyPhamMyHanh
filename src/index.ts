@@ -5,7 +5,7 @@ import cookieParser from 'cookie-parser';
 import compression from 'compression';
 import cors from 'cors';
 import { connect } from './config/index';
-import router from './router';
+import router from './routes';
 import path from 'path';
 
 const app = express();
@@ -25,4 +25,4 @@ const server = http.createServer(app);
 
 server.listen(8080, () => console.log('Server running on http://localhost:8080/'));
 
-app.use('/v1/', router());
+app.use('/', router());
