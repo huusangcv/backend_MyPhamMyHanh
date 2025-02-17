@@ -8,8 +8,8 @@
     ],
      "routes": [
         {
-            "src": "/(.*)",
-            "dest": "src/routes/index.ts"
+            "src": "/v1/(.*)",
+            "dest": "src/index.ts"
         },
           {
             "src": "/(.*)",
