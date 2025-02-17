@@ -1,7 +1,7 @@
 import slugify from 'slugify';
 import ProductModel, { ProductMethods } from '../models/product';
 import express from 'express';
-
+import ReviewModel, { ReviewMethods } from '../models/review';
 
 // [POST] /products
 export const createProduct = async (req: express.Request, res: express.Response): Promise<any> => {
@@ -35,7 +35,7 @@ export const createProduct = async (req: express.Request, res: express.Response)
       return res.status(200).json({
         status: true,
         message: 'Thêm mới sản phẩm thành công',
-        newProduct,
+        data: newProduct,
       });
     }
 
@@ -43,7 +43,7 @@ export const createProduct = async (req: express.Request, res: express.Response)
     return res.status(200).json({
       status: true,
       message: 'Thêm mới sản phẩm thành công',
-      newProduct,
+      data: newProduct,
     });
   } catch (error) {
     console.log(error);
@@ -122,6 +122,15 @@ export const updateProduct = async (req: express.Request, res: express.Response)
 export const deleteProduct = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
     const { id } = req.params;
+
+    const existingReviewForProduct = await ReviewModel.findOne({ product_id: id });
+
+    if (existingReviewForProduct) {
+      return res.status(403).json({
+        status: false,
+        message: 'Tồn tại đánh giá thuộc sản phẩm này',
+      });
+    }
 
     await ProductMethods.deleteProductById(id);
 
@@ -230,64 +239,89 @@ export const getOne = async (req: express.Request, res: express.Response): Promi
   }
 };
 
+// [GET] /products/:id
+export const getOneById = async (req: express.Request, res: express.Response): Promise<any> => {
+  try {
+    const { id } = req.params;
+
+    const product = await ProductMethods.getProductById(id);
+
+    if (!product) {
+      return res.status(403).json({
+        status: false,
+        message: 'Sản phẩm không tồn tại hoặc có lỗi xảy ra',
+      });
+    }
+
+    return res.status(200).json({
+      status: true,
+      message: 'Sản phẩm chi tiết',
+      data: product,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      status: false,
+      message: 'Đã xảy ra lỗi, hãy thử lại sau',
+    });
+  }
+};
+
 // [GET] /products?page=&limit=
-export const getProductsOncePage = async (req: express.Request, res: express.Response):Promise<any> => {
+export const getProductsOncePage = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
-    const skip = (page - 1) * limit
+    const skip = (page - 1) * limit;
 
-    const products = await ProductModel.find().skip(skip).limit(limit)
+    const products = await ProductModel.find().skip(skip).limit(limit);
 
-    const total = await ProductModel.countDocuments()
-    const totalPages = Math.ceil(total / limit)
+    const total = await ProductModel.countDocuments();
+    const totalPages = Math.ceil(total / limit);
 
-    if(products.length > 0) {
+    if (products.length > 0) {
       return res.status(200).json({
         status: true,
         message: `Danh sách sản phẩm trang: ${page}`,
         data: products,
         total,
         totalPages,
-        currentPage: page
-      })
+        currentPage: page,
+      });
     }
 
     return res.status(200).json({
       status: false,
       message: `Không có sản phẩm ở trang này`,
-    })
-
-    
+    });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return res.status(500).json({
       status: false,
-      message: "Đã có lỗi xảy ra, hãy thử lại sau"
-    })
+      message: 'Đã có lỗi xảy ra, hãy thử lại sau',
+    });
   }
-} 
+};
 
 // [POST] /products/uploads/photo
 export const uploadImageForDescription = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
     const imageData = req.file;
-   
+
     return res.json({
       status: true,
       message: 'Upload ảnh sản phẩm thành công',
       data: `/uploads/products/${imageData?.originalname}`,
-    })
-   
+    });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return res.status(500).json({
       status: false,
-      message: "Đã có lỗi xảy ra, hãy thử lại sau"
-    })
+      message: 'Đã có lỗi xảy ra, hãy thử lại sau',
+    });
   }
-}
-// [POST] /products/uploads/photos 
+};
+// [POST] /products/uploads/photos
 export const uploadImagesProduct = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
     const imagesData = req.files;
@@ -298,15 +332,14 @@ export const uploadImagesProduct = async (req: express.Request, res: express.Res
       return res.status(200).json({
         status: true,
         message: 'Upload ảnh sản phẩm thành công',
-        data: imagesPath
+        data: imagesPath,
       });
     }
-
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return res.status(500).json({
       status: false,
-      message: "Đã có lỗi xảy ra, hãy thử lại sau"
-    })
+      message: 'Đã có lỗi xảy ra, hãy thử lại sau',
+    });
   }
-}
+};

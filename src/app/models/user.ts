@@ -1,4 +1,3 @@
-import { update } from 'lodash';
 import { Schema, model } from 'mongoose';
 
 const UserSchema = new Schema(
@@ -8,7 +7,8 @@ const UserSchema = new Schema(
     address: { type: String, default: '' },
     phone: { type: String, default: '' },
     roles: { type: String, default: 'customer', select: false },
-    status: { type: String, default: 'active' },
+    status: { type: String, default: true },
+    segment: { type: String, default: '' },
     image: { type: String, default: '' },
     authentication: {
       password: { type: String, require: true, select: false },

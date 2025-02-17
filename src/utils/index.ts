@@ -24,6 +24,18 @@ export const uploadProductPhotos = multer({
   }),
 });
 
+// storage for media reviews
+export const uploadReviewMedia = multer({
+  storage: multer.diskStorage({
+    destination: function (req, files, cb) {
+      cb(null, 'src/uploads/reviews/');
+    },
+    filename: function (req, files, cb) {
+      cb(null, files.originalname);
+    },
+  }),
+});
+
 export const uploadNewsThumb = multer({
   storage: multer.diskStorage({
     destination: (req: express.Request, file, cb) => {

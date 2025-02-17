@@ -17,9 +17,10 @@ export default ReplyModel;
 
 export const ReplyMethods = {
   getReplies: () => ReplyModel.find(),
+  getRepliesByReviewId: (id: string) => ReplyModel.find({ review_id: id }),
   getReplyById: (id: string) => ReplyModel.findOne({ _id: id }),
   getRepliesByUserId: (id: string) => ReplyModel.findOne({ user_id: id }),
   createReply: (values: Record<string, any>) => new ReplyModel(values).save().then((replies) => replies.toObject()),
-  updateReplyById: (id: string) => ReplyModel.findByIdAndUpdate({ _id: id }),
+  updateReplyById: (id: string): any => ReplyModel.findByIdAndUpdate({ _id: id }),
   deleteReplyById: (id: string) => ReplyModel.findByIdAndDelete({ _id: id }),
 };

@@ -6,6 +6,7 @@ import categories from './categories';
 import genres from './genres';
 import news from './news';
 import certificates from './certificates';
+import reviews from './reviews';
 const router = express.Router();
 
 export default (): express.Router => {
@@ -16,5 +17,6 @@ export default (): express.Router => {
   genres(router);
   news(router);
   certificates(router);
+  reviews(router);
   return router;
 };
