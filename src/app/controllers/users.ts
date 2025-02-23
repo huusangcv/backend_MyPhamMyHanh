@@ -1,6 +1,5 @@
 import express from 'express';
 import { UserMethods } from '../models/user';
-import path from 'path';
 import ReviewModel from '../models/review';
 import sharp from 'sharp';
 // [GET] /users
@@ -184,21 +183,19 @@ export const updateUser = async (req: express.Request, res: express.Response): P
 export const uploadAvatar = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
     const imagePath = req.file;
-    const CloneImagePath = `/uploads/profile/${imagePath?.originalname}`;
-
-    const fileImage = sharp(CloneImagePath)
-      .resize(262, 317)
-      .toFile(CloneImagePath, function (err: any) {
-        if (err) {
-          console.error('sharp>>>', err);
-        }
-        console.log('ok okoko');
+    if (!imagePath) {
+      return res.status(400).json({
+        status: false,
+        message: 'No image file provided',
       });
+    }
+
+    const CloneImagePath = `/uploads/profile/${imagePath.originalname}`;
 
     return res.status(200).json({
       status: true,
-      message: 'Cập nhật ảnh đại diện thành công',
-      data: fileImage,
+      message: 'Upload ảnh đại diện thành công',
+      data: CloneImagePath,
     });
   } catch (error) {
     console.log(error);

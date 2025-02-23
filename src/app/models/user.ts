@@ -8,7 +8,7 @@ const UserSchema = new Schema(
     phone: { type: String, default: '' },
     roles: { type: String, default: 'customer', select: false },
     status: { type: String, default: true },
-    segment: { type: String, default: '' },
+    segment_ids: { type: [String] },
     image: { type: String, default: '' },
     authentication: {
       password: { type: String, require: true, select: false },

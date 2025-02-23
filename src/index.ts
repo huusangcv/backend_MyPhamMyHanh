@@ -11,18 +11,16 @@ import path from 'path';
 const app = express();
 connect();
 
-app.use(
-  cors({
-    credentials: true,
-  }),
-);
-
+// Middleware
+app.use(cors({ credentials: true }));
 app.use(compression());
 app.use(cookieParser());
-app.use(bodyParser.json());
+app.use(bodyParser.json()); // Phân tích cú pháp JSON
+app.use(bodyParser.urlencoded({ extended: true })); // Phân tích cú pháp urlencoded
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-const server = http.createServer(app);
 
-server.listen(8080, () => console.log('Server running on http://localhost:8080/'));
-
+// Router
 app.use('/v1/', router());
+
+const server = http.createServer(app);
+server.listen(8080, () => console.log('Server running on http://localhost:8080/'));

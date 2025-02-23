@@ -47,6 +47,17 @@ export const uploadNewsThumb = multer({
   }),
 });
 
+export const uploadCategoryImage = multer({
+  storage: multer.diskStorage({
+    destination: (req: express.Request, file, cb) => {
+      cb(null, 'src/uploads/categories/');
+    },
+    filename: (req: express.Request, file, cb) => {
+      cb(null, file.originalname);
+    },
+  }),
+});
+
 export const uploadCertificateImage = multer({
   storage: multer.diskStorage({
     destination: (req: express.Request, file, cb) => {

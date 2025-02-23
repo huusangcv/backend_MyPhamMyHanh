@@ -1,5 +1,5 @@
-import { ReplyMethods } from 'app/models/reply';
 import express from 'express';
+import { ReplyMethods } from '../models/reply';
 
 // [POST] /replies
 export const createReply = async (req: express.Request, res: express.Response): Promise<any> => {

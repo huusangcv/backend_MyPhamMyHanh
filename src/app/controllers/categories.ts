@@ -7,6 +7,7 @@ import slugify from 'slugify';
 export const createCategory = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
     const formData = req.body;
+    const imageData = req.file;
     const cloneFormData = formData;
 
     const slug = slugify(cloneFormData.name, { lower: true, strict: true });
@@ -17,6 +18,20 @@ export const createCategory = async (req: express.Request, res: express.Response
       return res.status(400).json({
         status: false,
         message: 'Danh mục sản phẩm đã tồn tại',
+      });
+    }
+
+    if (imageData) {
+      const imagePath = `/uploads/categories/${imageData?.originalname}`;
+      const newCategory = await CategoryMethods.createCategory({
+        ...cloneFormData,
+        image: imagePath,
+      });
+
+      return res.status(200).json({
+        status: true,
+        message: 'Tạo mới danh mục thành công',
+        data: newCategory,
       });
     }
 
@@ -43,13 +58,28 @@ export const updateCategory = async (req: express.Request, res: express.Response
     const formData = req.body;
     const cloneFormData = formData;
 
-    const product = await ProductModel.findOne({category_id: id})
+    if (cloneFormData.name !== undefined) {
+      const product = await ProductModel.findOne({ category_id: id });
 
-    if(product) {
-      return res.status(403).json({
-        status: false,
-        message: 'Tồn tại sản phẩm thuộc danh mục này',
-      });
+      if (product) {
+        return res.status(403).json({
+          status: false,
+          message: 'Không thể thay đổi tên do tồn tại sản phẩm thuộc danh mục này',
+          product,
+        });
+      }
+    }
+
+    if (cloneFormData.slug !== undefined) {
+      const product = await ProductModel.findOne({ category_id: id });
+
+      if (product) {
+        return res.status(403).json({
+          status: false,
+          message: 'Không thể thay đổi slug do có sản phẩm thuộc danh mục này',
+          product,
+        });
+      }
     }
 
     let category = await CategoryMethods.updateCategoryById(id);
@@ -89,9 +119,9 @@ export const deleteCategory = async (req: express.Request, res: express.Response
   try {
     const { id } = req.params;
 
-    const product = await ProductModel.findOne({category_id: id})
+    const product = await ProductModel.findOne({ category_id: id });
 
-    if(product) {
+    if (product) {
       return res.status(403).json({
         status: false,
         message: 'Tồn tại sản phẩm thuộc danh mục này',
@@ -197,3 +227,21 @@ export const getCategoryBySearch = async (req: express.Request, res: express.Res
   }
 };
 
+// [POST] /categories/uploads/photo
+export const uploadImageCategory = async (req: express.Request, res: express.Response): Promise<any> => {
+  try {
+    const imageData = req.file;
+
+    return res.status(200).json({
+      status: true,
+      message: 'Upload ảnh danh mục thành công',
+      data: `/uploads/categories/${imageData?.originalname}`,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      status: false,
+      message: 'Đã có lỗi xảy ra, hãy thử lại sau',
+    });
+  }
+};
