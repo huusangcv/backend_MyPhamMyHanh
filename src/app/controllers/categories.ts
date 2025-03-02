@@ -109,7 +109,7 @@ export const updateCategory = async (req: express.Request, res: express.Response
     console.log(error);
     return res.status(500).json({
       status: false,
-      message: 'Đã có lỗi xảy ra, vui lòng thử lại',
+      message: 'Đã có lỗi, vui lòng thử lại',
     });
   }
 };
