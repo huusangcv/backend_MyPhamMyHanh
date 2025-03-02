@@ -2,6 +2,7 @@ import slugify from 'slugify';
 import ProductModel, { ProductMethods } from '../models/product';
 import express from 'express';
 import ReviewModel, { ReviewMethods } from '../models/review';
+import CategoryModel, { CategoryMethods } from '../models/category';
 
 // [POST] /products
 export const createProduct = async (req: express.Request, res: express.Response): Promise<any> => {
@@ -159,6 +160,34 @@ export const getAllProducts = async (req: express.Request, res: express.Response
       return res.status(200).json({
         status: true,
         message: 'Lấy danh sách sản phẩm thành công',
+        data: products,
+      });
+    }
+
+    return res.status(200).json({
+      status: true,
+      message: 'Danh sách sản phẩm trống',
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      status: false,
+      message: 'Đã có lỗi xảy ra, hãy thử lại sau',
+    });
+  }
+};
+
+// [GET] /products
+export const getAllProductsByCategory = async (req: express.Request, res: express.Response): Promise<any> => {
+  try {
+    const { id } = req.params;
+
+    const products = await ProductModel.find({ category_id: id });
+    const category = await CategoryModel.findOne({ _id: id });
+    if (products.length > 0) {
+      return res.status(200).json({
+        status: true,
+        message: `Sản phẩm: ${category?.name || ''}`,
         data: products,
       });
     }

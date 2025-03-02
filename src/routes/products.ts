@@ -9,6 +9,7 @@ import {
   uploadImageForDescription,
   uploadImagesProduct,
   getOneById,
+  getAllProductsByCategory,
 } from '../app/controllers/products';
 import express from 'express';
 import { isAdmin, isAuthenticated } from '../app/middlewares';
@@ -16,10 +17,11 @@ import { uploadProductPhotos } from '../utils';
 
 export default (router: express.Router) => {
   router.get('/products/search', getProductBySearch);
-  // router.get('/products/:slug', getOne);
+  router.get('/products/slug/:slug', getOne);
   router.get('/products/:id', getOneById);
   router.get('/products', getProductsOncePage);
   router.get('/products', getAllProducts);
+  router.get('/products/category/:id', getAllProductsByCategory);
 
   // These routers are admin to allow continue
   router.post('/products', uploadProductPhotos.array('photos', 12), createProduct);
