@@ -7,6 +7,7 @@ import cors from 'cors';
 import { connect } from './config/index';
 import router from './routes';
 import path from 'path';
+const port = process.env.PORT || 8080;
 
 const app = express();
 connect();
@@ -23,4 +24,4 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/v1/', router());
 
 const server = http.createServer(app);
-server.listen(8080, () => console.log('Server running on http://localhost:8080/'));
+server.listen(port, () => console.log(`Project app listening on port ${port}`));
