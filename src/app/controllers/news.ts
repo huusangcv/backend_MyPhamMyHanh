@@ -1,5 +1,5 @@
-import GenreModal from '../models/genre';
-import { NewsMethods } from '../models/news';
+import GenreModal, { GenreMethods } from '../models/genre';
+import NewsModal, { NewsMethods } from '../models/news';
 import express from 'express';
 import slugify from 'slugify';
 
@@ -34,7 +34,7 @@ export const createNews = async (req: express.Request, res: express.Response): P
       });
     }
 
-   const news = await NewsMethods.createNews(cloneFormData);
+    const news = await NewsMethods.createNews(cloneFormData);
     return res.status(200).json({
       status: true,
       message: 'Tạo mới tin tức thành công',
@@ -124,13 +124,64 @@ export const deleteNews = async (req: express.Request, res: express.Response): P
 // [GET] /news
 export const getAllNews = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
-    const news = await NewsMethods.getNews();
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+
+    const skip = (page - 1) * limit;
+    const total = await NewsModal.countDocuments();
+    const totalPages = Math.ceil(total / limit);
+
+    const news = await NewsModal.find().skip(skip).limit(limit);
 
     if (news.length > 0) {
       return res.status(200).json({
         status: true,
-        message: 'Danh sách tin tức',
-        data: news,
+        message: `Danh sách tin tức trang: ${page}`,
+        data: { news, total, totalPages, currentPage: page },
+      });
+    }
+
+    return res.status(403).json({
+      status: false,
+      message: 'Tin tức trống',
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      status: false,
+      message: 'Đã xảy ra lỗi, vui lòng thử lại',
+    });
+  }
+};
+
+// [GET] /news
+export const getAllNewsByTag = async (req: express.Request, res: express.Response): Promise<any> => {
+  try {
+    const { slug } = req.params;
+
+    const tag = await GenreMethods.getGenreBySlug(slug);
+
+    if (!tag) {
+      return res.status(404).json({
+        status: false,
+        message: 'Không tìm thấy thể loại tương ứng',
+      });
+    }
+
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+
+    const skip = (page - 1) * limit;
+    const total = await NewsModal.countDocuments({ tag_id: tag._id });
+    const totalPages = Math.ceil(total / limit);
+
+    const news = await NewsModal.find({ tag_id: tag._id }).skip(skip).limit(limit);
+
+    if (news.length > 0) {
+      return res.status(200).json({
+        status: true,
+        message: `Danh sách tin tức trang: ${page}`,
+        data: { news, total, totalPages, currentPage: page },
       });
     }
 
@@ -218,18 +269,17 @@ export const detailNews = async (req: express.Request, res: express.Response): P
 export const uploadImageForContent = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
     const imageData = req.file;
-   
+
     return res.json({
       status: true,
       message: 'Upload ảnh thành công',
       data: `/uploads/news/${imageData?.originalname}`,
-    })
-   
+    });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return res.status(500).json({
       status: false,
-      message: "Đã có lỗi xảy ra, hãy thử lại sau"
-    })
+      message: 'Đã có lỗi xảy ra, hãy thử lại sau',
+    });
   }
-}
+};

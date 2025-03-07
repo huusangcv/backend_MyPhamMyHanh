@@ -180,24 +180,43 @@ export const getAllProducts = async (req: express.Request, res: express.Response
 // [GET] /products
 export const getAllProductsByCategory = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
-    const { id } = req.params;
+    const { slug } = req.params;
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 9;
+    const skip = (page - 1) * limit;
 
-    const products = await ProductModel.find({ category_id: id });
-    const category = await CategoryModel.findOne({ _id: id });
-    if (products.length > 0) {
-      return res.status(200).json({
-        status: true,
-        message: `Sản phẩm: ${category?.name || ''}`,
-        data: products,
+    const category = await CategoryModel.findOne({ slug });
+    if (!category) {
+      return res.status(404).json({
+        status: false,
+        message: 'Danh mục không tồn tại',
       });
     }
 
-    return res.status(200).json({
-      status: true,
+    const total = await ProductModel.countDocuments({ category_id: category._id });
+    const totalPages = Math.ceil(total / limit);
+
+    const products = await ProductModel.find({ category_id: category._id }).skip(skip).limit(limit);
+    if (products.length > 0) {
+      return res.status(200).json({
+        status: true,
+        title: category.name,
+        message: `Danh sách sản phẩm trang: ${page}`,
+        data: {
+          products,
+          total,
+          totalPages,
+          currentPage: page,
+        },
+      });
+    }
+
+    return res.status(204).json({
+      status: false,
       message: 'Danh sách sản phẩm trống',
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return res.status(500).json({
       status: false,
       message: 'Đã có lỗi xảy ra, hãy thử lại sau',
@@ -251,6 +270,19 @@ export const getOne = async (req: express.Request, res: express.Response): Promi
       return res.status(403).json({
         status: false,
         message: 'Sản phẩm không tồn tại hoặc có lỗi xảy ra',
+      });
+    }
+
+    const reviews = await ReviewModel.find({ product_id: product._id });
+
+    if (reviews.length > 0) {
+      return res.status(200).json({
+        status: true,
+        message: 'Sản phẩm chi tiết',
+        data: {
+          product,
+          reviews,
+        },
       });
     }
 
@@ -312,10 +344,12 @@ export const getProductsOncePage = async (req: express.Request, res: express.Res
       return res.status(200).json({
         status: true,
         message: `Danh sách sản phẩm trang: ${page}`,
-        data: products,
-        total,
-        totalPages,
-        currentPage: page,
+        data: {
+          products,
+          total,
+          totalPages,
+          currentPage: page,
+        },
       });
     }
 
