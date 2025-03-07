@@ -1,4 +1,3 @@
-import { getDetailSegment } from 'app/controllers/segments';
 import { Schema, model } from 'mongoose';
 
 const SegmentSchema = new Schema(
