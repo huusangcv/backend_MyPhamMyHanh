@@ -1,6 +1,6 @@
 # API
 
-API for webiste https://myphammyhanh.com/
+API for webiste https://myphammyhanh.regis.id.vn/
 
 ## Run Locally
 
