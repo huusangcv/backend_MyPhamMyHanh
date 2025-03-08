@@ -201,6 +201,8 @@ export const loginForAdmin = async (req: express.Request, res: express.Response)
     res.cookie('AUTH', user.authentication && user.authentication.sessionToken, {
       domain: 'admin.regis.id.vn',
       path: '/',
+      httpOnly: true,
+      secure: true,
     });
 
     res.json({
