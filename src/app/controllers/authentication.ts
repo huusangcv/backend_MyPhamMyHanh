@@ -59,11 +59,12 @@ export const login = async (req: express.Request, res: express.Response): Promis
 
     await user.save();
 
-    res.cookie('AUTH', user.authentication && user.authentication.sessionToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      domain: 'myphammyhanh.regis.id.vn',
+    res.cookie('CUSTOMER', user.authentication?.sessionToken || '', {
+      domain: '.regis.id.vn',
       path: '/',
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none',
     });
 
     res.json({
@@ -199,7 +200,7 @@ export const loginForAdmin = async (req: express.Request, res: express.Response)
     await user.save();
 
     res.cookie('AUTH', user.authentication?.sessionToken || '', {
-      domain: 'admin.regis.id.vn',
+      domain: '.regis.id.vn',
       path: '/',
       httpOnly: true,
       secure: true,
