@@ -13,7 +13,7 @@ const app = express();
 connect();
 
 // Middleware
-app.use(cors({ credentials: true }));
+app.use(cors({ origin: ['https://admin.regis.id.vn', 'https://myphammyhanh.regis.id.vn'], credentials: true }));
 app.use(compression());
 app.use(cookieParser());
 app.use(bodyParser.json()); // Phân tích cú pháp JSON
