@@ -199,7 +199,7 @@ export const loginForAdmin = async (req: express.Request, res: express.Response)
     await user.save();
 
     res.cookie('AUTH', user.authentication?.sessionToken || '', {
-      domain: 'admin.regis.id.vn',
+      domain: '.regis.id.vn',
       path: '/',
       httpOnly: true,
       secure: true,
