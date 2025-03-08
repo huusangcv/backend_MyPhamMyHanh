@@ -199,8 +199,6 @@ export const loginForAdmin = async (req: express.Request, res: express.Response)
     await user.save();
 
     res.cookie('AUTH', user.authentication && user.authentication.sessionToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
       domain: 'admin.regis.id.vn',
       path: '/',
     });
