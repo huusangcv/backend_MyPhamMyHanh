@@ -203,6 +203,7 @@ export const loginForAdmin = async (req: express.Request, res: express.Response)
       path: '/',
       httpOnly: true,
       secure: true,
+      sameSite: 'None',
     });
 
     res.json({
