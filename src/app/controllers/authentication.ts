@@ -59,7 +59,12 @@ export const login = async (req: express.Request, res: express.Response): Promis
 
     await user.save();
 
-    res.cookie('AUTH', user.authentication && user.authentication.sessionToken, { domain: 'localhost', path: '/' });
+    res.cookie('AUTH', user.authentication && user.authentication.sessionToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      domain: 'api.regis.id.vn',
+      path: '/',
+    });
 
     res.json({
       status: true,

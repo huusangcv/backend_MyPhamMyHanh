@@ -25,9 +25,21 @@ export default (router: express.Router) => {
   router.get('/products', getProductsOncePage); // Chỉ định route này cho phân trang
 
   // Các route cần quyền admin
-  router.post('/products', isAdmin, uploadProductPhotos.array('photos', 12), createProduct);
-  router.post('/products/uploads/photo', isAdmin, uploadProductPhotos.single('file'), uploadImageForDescription);
-  router.post('/products/uploads/photos', isAdmin, uploadProductPhotos.array('files', 12), uploadImagesProduct);
-  router.patch('/products/:id', isAdmin, uploadProductPhotos.array('photos', 12), updateProduct);
-  router.delete('/products/:id', isAdmin, deleteProduct);
+  router.post('/products', isAdmin, isAuthenticated, uploadProductPhotos.array('photos', 12), createProduct);
+  router.post(
+    '/products/uploads/photo',
+    isAdmin,
+    isAuthenticated,
+    uploadProductPhotos.single('file'),
+    uploadImageForDescription,
+  );
+  router.post(
+    '/products/uploads/photos',
+    isAdmin,
+    isAuthenticated,
+    uploadProductPhotos.array('files', 12),
+    uploadImagesProduct,
+  );
+  router.patch('/products/:id', isAdmin, isAuthenticated, uploadProductPhotos.array('photos', 12), updateProduct);
+  router.delete('/products/:id', isAdmin, isAuthenticated, deleteProduct);
 };
