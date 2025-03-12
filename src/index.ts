@@ -15,7 +15,13 @@ connect();
 // Middleware
 app.use(
   cors({
-    origin: ['https://api.regis.id.vn', 'https://admin.regis.id.vn', 'https://myphammyhanh.regis.id.vn'],
+    origin: [
+      'http://localhost:8080',
+      'https://admin.regis.id.vn',
+      'https://myphammyhanh.regis.id.vn',
+      'http://localhost:3000',
+      'http://localhost:5173',
+    ],
     credentials: true,
   }),
 );

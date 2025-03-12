@@ -1,7 +1,9 @@
+import CommentPostModel from '../models/commentPost';
 import GenreModal, { GenreMethods } from '../models/genre';
 import NewsModal, { NewsMethods } from '../models/news';
 import express from 'express';
 import slugify from 'slugify';
+import { UserMethods } from '../models/user';
 
 // [POST] /news
 export const createNews = async (req: express.Request, res: express.Response): Promise<any> => {
@@ -95,6 +97,48 @@ export const updateNews = async (req: express.Request, res: express.Response): P
     return res.status(500).json({
       status: false,
       message: 'Đã xảy ra lỗi, hãy thử lại',
+    });
+  }
+};
+
+// [PATCH] /news/like/:id
+export const likeNews = async (req: express.Request, res: express.Response): Promise<any> => {
+  try {
+    const { id } = req.params;
+    const { userId } = req.body;
+    const comment = await NewsMethods.likeNews(id as string, userId);
+
+    return res.status(200).json({
+      status: true,
+      message: 'Like bài viết thành công',
+      data: comment,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      status: false,
+      message: `Đã xảy ra lỗi, vui lòng thử lại sau`,
+    });
+  }
+};
+
+// [PATCH] /news/unlike/:id
+export const unlikeNews = async (req: express.Request, res: express.Response): Promise<any> => {
+  try {
+    const { id } = req.params;
+    const { userId } = req.body;
+    const comment = await NewsMethods.unlikeNews(id as string, userId);
+
+    return res.status(200).json({
+      status: true,
+      message: 'unLike bài viết thành công',
+      data: comment,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      status: false,
+      message: `Đã xảy ra lỗi, vui lòng thử lại sau`,
     });
   }
 };
@@ -246,15 +290,32 @@ export const detailNews = async (req: express.Request, res: express.Response): P
         message: 'Không tìm thấy tin tức tương ướng',
       });
     }
+    const comments = await CommentPostModel.find({ news_id: news._id });
+    const user = await UserMethods.getUserById(news.author as string);
 
     //view plus 1 when user click watch detailNews
     news.view += 1;
-    news.save();
+    await news.save();
+
+    if (comments.length > 0) {
+      return res.status(200).json({
+        status: true,
+        message: 'Chi tiết tin tức',
+        data: {
+          news,
+          comments,
+          user,
+        },
+      });
+    }
 
     return res.status(200).json({
       status: true,
       message: 'Chi tiết tin tức',
-      data: news,
+      data: {
+        news,
+        user,
+      },
     });
   } catch (error) {
     console.log(error);

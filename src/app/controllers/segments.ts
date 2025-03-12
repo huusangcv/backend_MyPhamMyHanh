@@ -68,8 +68,6 @@ export const createSegment = async (req: express.Request, res: express.Response)
       status: true,
       message: 'Tạo mới phân loại người dùng thành công',
       data: newSegment,
-      formData,
-      cloneFormData,
     });
   } catch (error) {
     console.log(error);

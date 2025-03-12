@@ -54,6 +54,34 @@ export const detailUser = async (req: express.Request, res: express.Response): P
   }
 };
 
+// [GET] /user/:sessionToken
+export const profileUser = async (req: express.Request, res: express.Response): Promise<any> => {
+  try {
+    const { sessionToken } = req.params;
+
+    const user = await UserMethods.getUserBySessionToken(sessionToken).select('+roles');
+
+    if (!user) {
+      return res.status(403).json({
+        status: true,
+        message: 'Người dùng không tồn tại',
+      });
+    }
+
+    return res.status(200).json({
+      status: true,
+      message: 'Chi tiết người dùng',
+      data: user,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      status: false,
+      message: 'Đã có lỗi xảy ra, hãy thử lại sau',
+    });
+  }
+};
+
 // [GET] /users/search?q=
 export const searchUsers = async (req: express.Request, res: express.Response): Promise<any> => {
   try {

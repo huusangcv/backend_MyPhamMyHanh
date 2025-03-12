@@ -4,6 +4,7 @@ import {
   deleteUser,
   detailUser,
   getAllUsers,
+  profileUser,
   searchUsers,
   updateUser,
   uploadAvatar,
@@ -20,6 +21,7 @@ export default (router: express.Router) => {
   router.get('/users', getAllUsers);
   router.get('/users/search', searchUsers);
   router.get('/users/:id', detailUser);
+  router.get('/users/profile/:sessionToken', profileUser);
 
   router.post('/users', createUser);
   router.delete('/users/:id', deleteUser);

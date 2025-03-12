@@ -8,8 +8,9 @@ import news from './news';
 import certificates from './certificates';
 import reviews from './reviews';
 import segments from './segments';
-import replies from './replies';
+import repliesPost from './repliesPost';
 import orders from './orders';
+import commentPost from './commentPost';
 const router = express.Router();
 
 export default (): express.Router => {
@@ -22,7 +23,8 @@ export default (): express.Router => {
   news(router);
   certificates(router);
   reviews(router);
-  replies(router);
+  repliesPost(router);
   segments(router);
+  commentPost(router);
   return router;
 };
