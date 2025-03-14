@@ -85,7 +85,8 @@ export const updateCommentPost = async (req: express.Request, res: express.Respo
 export const likeCommentPost = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
     const { id } = req.params;
-    const comment = await commentPostMethods.likeCommentPost(id as string);
+    const { userId } = req.body;
+    const comment = await commentPostMethods.likeNews(id as string, userId as string);
 
     return res.status(200).json({
       status: true,
@@ -105,11 +106,12 @@ export const likeCommentPost = async (req: express.Request, res: express.Respons
 export const unlikeCommentPost = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
     const { id } = req.params;
-    const comment = await commentPostMethods.unlikeCommentPost(id as string);
+    const { userId } = req.body;
+    const comment = await commentPostMethods.unlikeNews(id as string, userId as string);
 
     return res.status(200).json({
       status: true,
-      message: 'unLike bình luận thành công',
+      message: 'unLike bình luận  thành công',
       data: comment,
     });
   } catch (error) {

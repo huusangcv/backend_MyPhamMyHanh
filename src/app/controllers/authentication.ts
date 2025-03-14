@@ -70,7 +70,7 @@ export const login = async (req: express.Request, res: express.Response): Promis
     res.json({
       status: true,
       message: 'Đăng nhập thành công',
-      user,
+      data: user,
     });
   } catch (error) {
     console.log(error);
@@ -113,7 +113,7 @@ export const register = async (req: express.Request, res: express.Response): Pro
     return res.status(200).json({
       status: true,
       message: 'Đăng ký thành công',
-      user,
+      data: user,
     });
   } catch (error) {
     console.log(error);
@@ -121,8 +121,20 @@ export const register = async (req: express.Request, res: express.Response): Pro
   }
 };
 
-// [GET] /auth/logout  || /logout
+// [GET] /auth/logout
 export const logout = async (req: express.Request, res: express.Response): Promise<any> => {
+  try {
+    res.clearCookie('CUSTOMER');
+
+    return res.status(200).json({ status: true, message: 'Đăng xuất thành công' });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: false, message: 'Đã xảy ra lỗi' });
+  }
+};
+
+// [GET] /logout
+export const logoutForAdmin = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
     res.clearCookie('AUTH');
 

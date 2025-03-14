@@ -10,13 +10,13 @@ import {
   uploadAvatar,
 } from '../app/controllers/users';
 import { isAdmin, isAuthenticated, isOwner } from '../app/middlewares';
-import { loginForAdmin, logout } from '../app/controllers/authentication';
+import { loginForAdmin, logoutForAdmin } from '../app/controllers/authentication';
 import { uploadProfile } from '../utils';
 
 //Admin ep: this router for admin
 export default (router: express.Router) => {
   router.post('/login', loginForAdmin);
-  router.get('/logout', isAuthenticated, logout);
+  router.get('/logout', isAuthenticated, logoutForAdmin);
 
   router.get('/users', getAllUsers);
   router.get('/users/search', searchUsers);

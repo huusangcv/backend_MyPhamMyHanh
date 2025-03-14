@@ -12,10 +12,12 @@ const CommentPostSchema = new Schema(
       required: true,
       ref: 'News',
     },
-    like: {
-      type: Number,
-      default: 0,
-    },
+    likes: [
+      {
+        type: String,
+        ref: 'User',
+      },
+    ],
     content: {
       type: String,
       required: true,
@@ -42,23 +44,30 @@ export const commentPostMethods = {
   getCommentsPost: () => CommentPostModel.find(),
   getCommentsPostByNewsId: (id: string) => CommentPostModel.find({ news_id: id }),
   getCommentsPostByUserId: (id: string) => CommentPostModel.find({ user_id: id }),
-  likeCommentPost: async (id: string) => {
-    const post = (await CommentPostModel.findById(id)) as any;
-    if (!post) {
+  likeNews: async (id: string, userId: string) => {
+    const comment = await CommentPostModel.findById(id);
+    if (!comment) {
       throw new Error('Bình luận không tồn tại');
     }
-    post.like += 1;
-    await post.save();
-    return post.toObject();
-  },
 
-  unlikeCommentPost: async (id: string) => {
-    const post = (await CommentPostModel.findById(id)) as any;
-    if (!post) {
+    // Kiểm tra xem người dùng đã "like" bài viết chưa
+    if (!comment.likes.includes(userId)) {
+      comment.likes.push(userId); // Thêm userId vào mảng likes
+      await comment.save();
+    }
+
+    return comment.toObject();
+  },
+  unlikeNews: async (id: string, userId: string) => {
+    const comment = await CommentPostModel.findById(id);
+    if (!comment) {
       throw new Error('Bình luận không tồn tại');
     }
-    post.like = Math.max(0, post.like - 1);
-    await post.save();
-    return post.toObject();
+
+    // Xóa userId khỏi mảng likes nếu nó tồn tại
+    comment.likes = (comment.likes as string[]).filter((likeId: string) => likeId.toString() !== userId);
+    await comment.save();
+
+    return comment.toObject();
   },
 };

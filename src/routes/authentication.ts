@@ -18,9 +18,9 @@ export default (router: express.Router) => {
   router.post('/auth/user/login', login);
 
   //User after login
-  router.get('/auth/user/logout/:id', isAuthenticated, isOwner, logout);
-  router.get('/auth/user/:sessionToken', isAuthenticated, isOwner, profileUser);
-  router.patch('/auth/user/:id', isAuthenticated, isOwner, updateUser);
-  router.delete('/auth/user/:id', isAuthenticated, isOwner, deleteUser);
-  router.post('/user/profile/:id', isAuthenticated, isOwner, upload.single('file'), uploadAvatar);
+  router.get('/auth/user/logout', logout);
+  router.get('/auth/user/:sessionToken', profileUser);
+  router.patch('/auth/user/:id', updateUser);
+  router.delete('/auth/user/:id', deleteUser);
+  router.post('/user/profile/:id', upload.single('file'), uploadAvatar);
 };

@@ -86,6 +86,48 @@ export const updateReplyPost = async (req: express.Request, res: express.Respons
   }
 };
 
+// [PATCH] /commentsPost/like/:id
+export const likeRepliesPost = async (req: express.Request, res: express.Response): Promise<any> => {
+  try {
+    const { id } = req.params;
+    const { userId } = req.body;
+    const reply = await ReplyPostMethods.likeNews(id as string, userId as string);
+
+    return res.status(200).json({
+      status: true,
+      message: 'Like phản hồi bình luận thành công',
+      data: reply,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      status: false,
+      message: `Đã xảy ra lỗi, vui lòng thử lại sau`,
+    });
+  }
+};
+
+// [PATCH] /commentsPost/unlike/:id
+export const unlikeRepliesPost = async (req: express.Request, res: express.Response): Promise<any> => {
+  try {
+    const { id } = req.params;
+    const { userId } = req.body;
+    const reply = await ReplyPostMethods.unlikeNews(id as string, userId as string);
+
+    return res.status(200).json({
+      status: true,
+      message: 'unLike phản hồi bình luận thành công',
+      data: reply,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      status: false,
+      message: `Đã xảy ra lỗi, vui lòng thử lại sau`,
+    });
+  }
+};
+
 // [DELETE] /repliesPost/comment/:commentId/:id
 export const deleteReplyPost = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
