@@ -6,8 +6,12 @@ import {
   getDetailOrder,
   searchOrders,
   updateOrder,
+  vnpaymentIPN,
+  vnpaymentReturn,
 } from '../app/controllers/orders';
 export default (router: express.Router) => {
+  router.get('/orders/vnpayment_return', vnpaymentReturn);
+  router.get('/orders/vnpayment_ipn', vnpaymentIPN);
   router.get('/orders', getAllOrders);
   router.get('/orders/:id', getDetailOrder);
   router.get('/orders/search', searchOrders);

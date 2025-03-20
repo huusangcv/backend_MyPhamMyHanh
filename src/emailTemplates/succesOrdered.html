@@ -1,0 +1,54 @@
+<!-- email-template.html -->
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thông báo đặt hàng thành công</title>
+    <style>
+        /* Thay đổi nội dung CSS như trước */
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Thông báo đặt hàng thành công</h1>
+        <p>Chào <strong>[Tên Khách Hàng]</strong>,</p>
+        <p>Cảm ơn bạn đã đặt hàng tại <strong>[Tên Cửa Hàng]</strong>! Đơn hàng của bạn đã được xác nhận.</p>
+
+        <div class="order-details">
+            <h2>Chi tiết đơn hàng</h2>
+            <p>Số đơn hàng: <strong>[Số Đơn Hàng]</strong></p>
+            <table style="width: 100%; border-collapse: collapse;" class="order-details">
+                <thead>
+                    <tr>
+                        <th>Tên sản phẩm</th>
+                        <th>Số lượng</th>
+                        <th>Giá</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>[Tên Sản Phẩm 1]</td>
+                        <td>[Số Lượng 1]</td>
+                        <td>[Giá 1] VNĐ</td>
+                    </tr>
+                    <tr>
+                        <td>[Tên Sản Phẩm 2]</td>
+                        <td>[Số Lượng 2]</td>
+                        <td>[Giá 2] VNĐ</td>
+                    </tr>
+                    <!-- Thêm các sản phẩm nếu cần -->
+                </tbody>
+            </table>
+            <p class="total">Tổng cộng: <strong>[Tổng Số Tiền] VNĐ</strong></p>
+        </div>
+
+        <p>Chúng tôi sẽ xử lý đơn hàng của bạn và thông báo khi nó được gửi đi!</p>
+        <p>Nếu bạn có bất kỳ câu hỏi nào, hãy không ngần ngại liên hệ với chúng tôi qua email này.</p>
+        <p class="footer">Trân trọng,<br>[Tên Cửa Hàng]</p>
+    </div>
+</body>
+
+</html>

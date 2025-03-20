@@ -1,21 +1,42 @@
-import { Schema, model } from 'mongoose';
-import { v4 as uuidv4 } from 'uuid';
-const generateShortId = () => {
-  return 'MDH' + uuidv4().replace(/-/g, '').slice(0, 6);
-};
+import { identity } from 'lodash';
+import mongoose, { Schema, model } from 'mongoose';
+
 const OrderSchema = new Schema(
   {
-    user_id: { type: String },
-    fullName: { type: String },
+    user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    name: { type: String },
     phone: { type: Number },
     email: { type: String },
     address: { type: String },
     note: { type: String },
-    products: { type: [String] },
+    products: [
+      {
+        id: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
+        name: { type: String },
+        image: { type: String },
+        product_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
+        quantity: { type: Number },
+        price: { type: Number },
+      },
+    ],
+    receiver: { type: String },
     total: { type: Number },
     returned: { type: Boolean, default: false },
     reference: { type: String },
-    status: { type: String },
+    paymentMethod: {
+      type: String,
+      enum: ['credit_card', 'pickup', 'paypal', 'vnpay', 'momo', 'cash_on_delivery'],
+    },
+    paymentStatus: {
+      type: String,
+      enum: ['pending', 'success', 'fail'],
+      default: 'pending',
+    },
+    status: {
+      type: String,
+      enum: ['pending', 'ordered', 'delivering', 'delivered', 'canceled', 'returned'],
+      default: 'pending',
+    },
   },
   {
     timestamps: true,
@@ -37,11 +58,8 @@ export const OrderMethods = {
         { reference: { $regex: query, $options: 'i' } },
       ],
     }),
-  createOrder: (values: Record<string, any>) => {
-    const cloneValues = { ...values };
-    cloneValues.reference = generateShortId();
-    return new OrderModel(cloneValues).save().then((order) => order);
-  }, // eslint-disable-lineSecurity/avoid-new-operator
+  createOrder: (values: Record<string, any>) => new OrderModel(values).save().then((order) => order),
+  // eslint-disable-lineSecurity/avoid-new-operator
   deleteOrderById: (id: string) => OrderModel.findByIdAndDelete(id),
   updateOrderById: (id: string): any => OrderModel.findByIdAndUpdate(id),
 };

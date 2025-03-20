@@ -11,6 +11,7 @@ import segments from './segments';
 import repliesPost from './repliesPost';
 import orders from './orders';
 import commentPost from './commentPost';
+import payment from './payment';
 const router = express.Router();
 
 export default (): express.Router => {
@@ -26,5 +27,6 @@ export default (): express.Router => {
   repliesPost(router);
   segments(router);
   commentPost(router);
+  payment(router);
   return router;
 };

@@ -81,9 +81,9 @@ export const login = async (req: express.Request, res: express.Response): Promis
 // [POST] /auth/register
 export const register = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
-    const { email, password, username } = req.body;
+    const { email, password, username, phone } = req.body;
 
-    if (!email || !password || !username) {
+    if (!email || !password || !username || !phone) {
       return res.json({
         message: 'Trường này không được bỏ trống',
       });
@@ -104,6 +104,7 @@ export const register = async (req: express.Request, res: express.Response): Pro
     const user = await UserMethods.createUser({
       email,
       username,
+      phone,
       authentication: {
         salt,
         password: authentication(salt, password),

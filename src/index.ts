@@ -7,6 +7,7 @@ import cors from 'cors';
 import { connect } from './config/index';
 import router from './routes';
 import path from 'path';
+
 const port = process.env.PORT || 8080;
 
 const app = express();

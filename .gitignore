@@ -1,1 +1,32 @@
-.vercel
+# Node Modules
+node_modules/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Biến môi trường
+.env
+
+# Cache
+.cache/
+.pnp.*
+.pnp
+.vscode/
+
+# Bản sao build
+dist/
+build/
+
+# Thư mục quản lý tạm thời
+tmp/
+temp/
+
+# Hệ thống tập tin OS
+.DS_Store
+Thumbs.db
+
+# Các thư mục khác nếu có
+coverage/
+*.tgz
