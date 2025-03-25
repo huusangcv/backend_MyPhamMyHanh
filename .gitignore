@@ -6,8 +6,8 @@ logs
 *.log
 npm-debug.log*
 
-# Biến môi trường
-.env
+# # Biến môi trường
+# .env
 
 # Cache
 .cache/

@@ -12,6 +12,7 @@ import repliesPost from './repliesPost';
 import orders from './orders';
 import commentPost from './commentPost';
 import payment from './payment';
+import openaiChatbox from './openaiChatbox';
 const router = express.Router();
 
 export default (): express.Router => {
@@ -28,5 +29,6 @@ export default (): express.Router => {
   segments(router);
   commentPost(router);
   payment(router);
+  openaiChatbox(router);
   return router;
 };

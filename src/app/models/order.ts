@@ -1,4 +1,3 @@
-import { identity } from 'lodash';
 import mongoose, { Schema, model } from 'mongoose';
 
 const OrderSchema = new Schema(
@@ -19,22 +18,28 @@ const OrderSchema = new Schema(
         price: { type: Number },
       },
     ],
-    receiver: { type: String },
-    total: { type: Number },
-    returned: { type: Boolean, default: false },
-    reference: { type: String },
+    receiver: { type: String }, // Người nhận
+    total: { type: Number }, // Tổng tiền
+    mustPay: { type: Number }, // Phải thanh toán
+    stillHaveToPay: { type: Number }, // Còn phải thanh toán
+    shipping: { type: Number, default: 0 }, // Phí vận chuyển
+    coupon: { type: Number, default: 0 }, // Giảm giá
+    couponCode: { type: String, default: '' }, // Mã giảm giá
+    returned: { type: Boolean, default: false }, // Đã trả hàng
+    reference: { type: String }, // Mã đơn hàng
     paymentMethod: {
       type: String,
-      enum: ['credit_card', 'pickup', 'paypal', 'vnpay', 'momo', 'cash_on_delivery'],
+      enum: ['credit_card', 'pickup', 'paypal', 'vnpay', 'momo', 'cash_on_delivery'], // Phương thức thanh toán
+      default: 'cash_on_delivery',
     },
     paymentStatus: {
       type: String,
-      enum: ['pending', 'success', 'fail'],
+      enum: ['pending', 'success', 'fail'], // Trạng thái thanh toán
       default: 'pending',
     },
     status: {
       type: String,
-      enum: ['pending', 'ordered', 'delivering', 'delivered', 'canceled', 'returned'],
+      enum: ['pending', 'ordered', 'delivering', 'delivered', 'cancelled', 'returned'], // Trạng thái đơn hàng
       default: 'pending',
     },
   },

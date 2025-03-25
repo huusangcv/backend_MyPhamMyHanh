@@ -50,6 +50,32 @@ export const getAllOrders = async (req: express.Request, res: express.Response):
   }
 };
 
+// [GET] /orders/userId/:user_id
+export const getAllOrdersByUserId = async (req: express.Request, res: express.Response): Promise<any> => {
+  try {
+    const { user_id } = req.params;
+    const orders = await OrderMethods.findOrderByUser(user_id);
+    if (orders.length > 0) {
+      return res.status(200).json({
+        status: true,
+        message: 'Danh sách đơn hàng theo người dùng',
+        data: orders,
+      });
+    }
+
+    return res.status(404).json({
+      status: false,
+      message: 'Danh sách đơn hàng trống',
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      status: false,
+      message: 'Đã xảy ra lỗi, hãy thử lại',
+    });
+  }
+};
+
 // [GET] /orders/:id
 export const getDetailOrder = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
@@ -82,6 +108,21 @@ export const createOrder = async (req: express.Request, res: express.Response): 
     const formData = req.body;
     const cloneFormData = { ...formData };
     const order = await OrderMethods.createOrder(cloneFormData);
+
+    // update quantity and sold of product
+    if (order && order.products && order.products.length > 0) {
+      order.products.map(async (productOrder) => {
+        let product = await ProductMethods.getProductById(productOrder.id);
+
+        if (product && productOrder) {
+          product.sold += productOrder.quantity ?? 0;
+          product.quantity -= productOrder.quantity ?? 0;
+          product.save();
+        }
+
+        return Promise.resolve();
+      });
+    }
 
     return res.status(201).json({
       status: true,
@@ -119,6 +160,22 @@ export const updateOrder = async (req: express.Request, res: express.Response): 
     });
 
     await order.save();
+
+    if (order.status === 'cancelled') {
+      if (order?.products?.length > 0) {
+        await Promise.all(
+          order.products.map(async (productOrder: { id: string; quantity: any }) => {
+            const product = await ProductMethods.getProductById(productOrder.id);
+
+            if (product) {
+              product.sold -= productOrder.quantity ?? 0;
+              product.quantity += productOrder.quantity ?? 0;
+              await product.save();
+            }
+          }),
+        );
+      }
+    }
 
     if (order.status === 'ordered') {
       if (order) {
