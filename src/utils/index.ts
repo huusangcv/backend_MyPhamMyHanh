@@ -68,3 +68,15 @@ export const uploadCertificateImage = multer({
     },
   }),
 });
+
+// storage for photos chatbotAi
+export const uploadChatbotAiPhotos = multer({
+  storage: multer.diskStorage({
+    destination: function (req, files, cb) {
+      cb(null, 'src/uploads/chatbot/');
+    },
+    filename: function (req, files, cb) {
+      cb(null, files.originalname);
+    },
+  }),
+});

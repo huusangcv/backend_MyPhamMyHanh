@@ -1,7 +1,6 @@
 import express from 'express';
 import { UserMethods } from '../models/user';
 import ReviewModel from '../models/review';
-import sharp from 'sharp';
 // [GET] /users
 export const getAllUsers = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
@@ -208,6 +207,7 @@ export const updateUser = async (req: express.Request, res: express.Response): P
   }
 };
 
+// [PATCH] /users/profile/avatar
 export const uploadAvatar = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
     const imagePath = req.file;
@@ -224,6 +224,45 @@ export const uploadAvatar = async (req: express.Request, res: express.Response):
       status: true,
       message: 'Upload ảnh đại diện thành công',
       data: CloneImagePath,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      status: false,
+      message: 'Đã có lỗi xảy ra, hãy thử lại sau',
+    });
+  }
+};
+
+// [PATCH] /auth/uploadAvatar/:id
+export const updateAvatar = async (req: express.Request, res: express.Response): Promise<any> => {
+  try {
+    const imagePath = req.file;
+    const { id } = req.params;
+    if (!imagePath) {
+      return res.status(400).json({
+        status: false,
+        message: 'No image file provided',
+      });
+    }
+
+    const user = await UserMethods.updateUserById(id);
+
+    if (user) {
+      const CloneImagePath = `/uploads/profile/${imagePath.originalname}`;
+      user.image = CloneImagePath;
+      user.save();
+
+      return res.status(200).json({
+        status: true,
+        message: 'Upload ảnh đại diện thành công',
+        data: user,
+      });
+    }
+
+    return res.status(404).json({
+      status: false,
+      message: 'Không tìm thấy người dùng tương ứng',
     });
   } catch (error) {
     console.log(error);

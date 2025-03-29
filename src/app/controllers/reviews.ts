@@ -264,3 +264,45 @@ export const uploadImagesProduct = async (req: express.Request, res: express.Res
     });
   }
 };
+
+// [PATCH] /review/like/:id
+export const likeReview = async (req: express.Request, res: express.Response): Promise<any> => {
+  try {
+    const { id } = req.params;
+    const { userId } = req.body;
+    const reply = await ReviewMethods.likeNews(id as string, userId as string);
+
+    return res.status(200).json({
+      status: true,
+      message: 'Like phản hồi bình luận thành công',
+      data: reply,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      status: false,
+      message: `Đã xảy ra lỗi, vui lòng thử lại sau`,
+    });
+  }
+};
+
+// [PATCH] /review/unlike/:id
+export const unlikeReview = async (req: express.Request, res: express.Response): Promise<any> => {
+  try {
+    const { id } = req.params;
+    const { userId } = req.body;
+    const reply = await ReviewMethods.unlikeNews(id as string, userId as string);
+
+    return res.status(200).json({
+      status: true,
+      message: 'unLike phản hồi bình luận thành công',
+      data: reply,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      status: false,
+      message: `Đã xảy ra lỗi, vui lòng thử lại sau`,
+    });
+  }
+};

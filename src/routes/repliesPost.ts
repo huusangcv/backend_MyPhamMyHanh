@@ -18,7 +18,4 @@ export default (router: express.Router) => {
   router.patch('/repliesPost/like/:id', likeRepliesPost);
   router.patch('/repliesPost/unlike/:id', unlikeRepliesPost);
   router.delete('/repliesPost/comment/:commentId/:id', deleteReplyPost);
-
-  router.patch('/repliesPost/like/:id');
-  router.patch('/repliesPost/unlike/:id');
 };

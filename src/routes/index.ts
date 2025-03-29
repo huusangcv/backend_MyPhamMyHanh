@@ -12,7 +12,9 @@ import repliesPost from './repliesPost';
 import orders from './orders';
 import commentPost from './commentPost';
 import payment from './payment';
-import openaiChatbox from './openaiChatbox';
+import openaiChatbot from './openaiChatbot';
+import commentProduct from './commentProduct';
+import repliesProduct from './repliesProduct';
 const router = express.Router();
 
 export default (): express.Router => {
@@ -26,9 +28,11 @@ export default (): express.Router => {
   certificates(router);
   reviews(router);
   repliesPost(router);
+  repliesProduct(router);
   segments(router);
   commentPost(router);
+  commentProduct(router);
   payment(router);
-  openaiChatbox(router);
+  openaiChatbot(router);
   return router;
 };

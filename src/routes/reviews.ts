@@ -8,6 +8,8 @@ import {
   getDetailReview,
   deleteReview,
   updateReview,
+  likeReview,
+  unlikeReview,
 } from '../app/controllers/reviews';
 import express from 'express';
 
@@ -22,4 +24,7 @@ export default (router: express.Router) => {
   router.post('/reviews', uploadReviewMedia.array('media', 12), createReview);
   router.delete('/reviews/:id', deleteReview);
   router.patch('/reviews/:id', updateReview);
+
+  router.patch('/reviews/like/:id', likeReview);
+  router.patch('/reviews/unlike/:id', unlikeReview);
 };

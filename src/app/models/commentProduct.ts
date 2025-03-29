@@ -10,11 +10,7 @@ const CommentProductSchema = new Schema(
     product_id: {
       type: Types.ObjectId,
       required: true,
-      ref: 'News',
-    },
-    like: {
-      type: Number,
-      default: 0,
+      ref: 'Product',
     },
     content: {
       type: String,
@@ -24,9 +20,14 @@ const CommentProductSchema = new Schema(
     replies: [
       {
         type: Types.ObjectId,
-        ref: 'ReplyPost',
+        ref: 'ReplyProduct',
       },
     ],
+    status: {
+      type: String,
+      enum: ['pending', 'success', 'reject'], // Trạng thái bình luận
+      default: 'pending',
+    },
   },
   { timestamps: true },
 );
@@ -42,6 +43,4 @@ export const commentProductMethods = {
   getCommentProducts: () => CommentProductModel.find(),
   getCommentsProductByProductId: (id: string) => CommentProductModel.find({ product_id: id }),
   getCommentProductByUserId: (id: string) => CommentProductModel.find({ user_id: id }),
-  likeCommentProduct: (id: string) => CommentProductModel.findByIdAndUpdate({ _id: id }),
-  unlikeCommentProduct: (id: string) => CommentProductModel.findByIdAndUpdate({ _id: id }),
 };

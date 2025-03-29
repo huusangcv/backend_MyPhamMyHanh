@@ -1,6 +1,6 @@
 import express from 'express';
 import { register, login, logout } from '../app/controllers/authentication';
-import { deleteUser, profileUser, updateUser, uploadAvatar } from '../app/controllers/users';
+import { deleteUser, profileUser, updateAvatar, updateUser, uploadAvatar } from '../app/controllers/users';
 import { isAuthenticated, isOwner } from '../app/middlewares';
 import multer from 'multer';
 const storage = multer.diskStorage({
@@ -22,5 +22,5 @@ export default (router: express.Router) => {
   router.get('/auth/user/:sessionToken', profileUser);
   router.patch('/auth/user/:id', updateUser);
   router.delete('/auth/user/:id', deleteUser);
-  router.post('/user/profile/:id', upload.single('file'), uploadAvatar);
+  router.patch('/auth/uploadAvatar/:id', upload.single('file'), updateAvatar);
 };
