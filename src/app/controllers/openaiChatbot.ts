@@ -6,7 +6,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY, // Use environment variable for API key
+  apiKey: '12333', // Use environment variable for API key
 });
 
 export const createContent = async (req: express.Request, res: express.Response): Promise<any> => {

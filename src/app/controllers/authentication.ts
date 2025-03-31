@@ -1,8 +1,13 @@
 import express from 'express';
 import { UserMethods } from '../models/user';
-import { random, authentication } from '../helpers';
-
-// [POST] /auth/login
+import { random, authentication, transporter } from '../helpers';
+import { mailOptionsRegisGoogle } from '../mails';
+import { v4 as uuidv4 } from 'uuid';
+// Generate short id
+const generateShortId = () => {
+  return uuidv4().replace(/-/g, '').slice(0, 6); // Xóa dấu '-' và cắt lấy 12 ký tự
+};
+// [POST] /auth/user/login
 export const login = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
     const { email, password } = req.body;
@@ -67,7 +72,7 @@ export const login = async (req: express.Request, res: express.Response): Promis
       sameSite: 'none',
     });
 
-    res.json({
+    res.status(200).json({
       status: true,
       message: 'Đăng nhập thành công',
       data: user,
@@ -78,13 +83,122 @@ export const login = async (req: express.Request, res: express.Response): Promis
   }
 };
 
-// [POST] /auth/register
+// [POST] /auth/user/loginGoogle
+export const loginGoogle = async (req: express.Request, res: express.Response): Promise<any> => {
+  try {
+    const { email, name } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        status: false,
+        message: 'Không nhận được Email',
+      });
+    }
+
+    let userExisting = await UserMethods.getUserByEmail(email).select('+authentication.salt + authentication.password');
+
+    if (!userExisting) {
+      return res.status(404).json({
+        status: false,
+        message: 'Không tồn tại người dùng. Vui lòng cập nhật thông tin tài khoản.',
+        data: {
+          email,
+          username: name,
+        },
+      });
+    }
+
+    if (userExisting.authentication) {
+      // Tạo token mới cho người dùng
+      const salt = random();
+      userExisting.authentication.sessionToken = authentication(salt, userExisting._id.toString());
+      await userExisting.save();
+    }
+
+    if (userExisting.googleEmail === email) {
+      return res.status(200).json({
+        status: true,
+        message: 'Đăng nhập thành công',
+        data: userExisting,
+      });
+    }
+
+    return res.status(403).json({
+      status: false,
+      message: 'Tài khoản chưa được liên kết với Google. Vui lòng cập nhật thông tin tài khoản.',
+      data: {
+        email,
+        username: name,
+      },
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: false, message: 'Đã xảy ra lỗi' });
+  }
+};
+
+// [POST] /auth/user/registerGoogle
+export const registerGoogle = async (req: express.Request, res: express.Response): Promise<any> => {
+  try {
+    const { email, username, phone } = req.body;
+
+    if (!email || !username || !phone) {
+      return res.status(400).json({
+        status: false,
+        message: 'Trường này không được bỏ trống',
+      });
+    }
+
+    let existingUser = await UserMethods.getUserByEmail(email);
+
+    if (existingUser) {
+      return res
+        .json({
+          status: false,
+          message: 'Tài khoản đã tồn tại trong hệ thống',
+        })
+        .status(400);
+    }
+
+    const salt = random();
+    let user = await UserMethods.createUser({
+      email,
+      username,
+      phone,
+      authentication: {
+        salt,
+        password: authentication(salt, email),
+        sessionToken: authentication(salt, email.toString()),
+      },
+      googleEmail: email,
+    });
+
+    if (user) {
+      return res.status(200).json({
+        status: true,
+        message: 'Đăng nhập thành công',
+        data: user,
+      });
+    }
+
+    return res.status(404).json({
+      status: false,
+      message: 'Không tìm thấy người dùng mới',
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: false, message: 'Đã xảy ra lỗi' });
+  }
+};
+
+// [POST] /auth/user/register
 export const register = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
     const { email, password, username, phone } = req.body;
 
     if (!email || !password || !username || !phone) {
-      return res.json({
+      return res.status(400).json({
+        status: false,
         message: 'Trường này không được bỏ trống',
       });
     }
@@ -93,6 +207,7 @@ export const register = async (req: express.Request, res: express.Response): Pro
 
     if (existingUser) {
       return res
+        .status(400)
         .json({
           status: false,
           message: 'Tài khoản đã tồn tại trong hệ thống, hệ nhập địa chỉ Email khác',
@@ -122,7 +237,114 @@ export const register = async (req: express.Request, res: express.Response): Pro
   }
 };
 
-// [GET] /auth/logout
+// [GET] /auth/user/sendCodeVerify/:email
+export const sendCodeVerify = async (req: express.Request, res: express.Response): Promise<any> => {
+  try {
+    const { email } = req.params;
+
+    if (!email) {
+      return res.status(400).json({
+        status: false,
+        message: 'Trường này không được bỏ trống',
+      });
+    }
+
+    const existingUser = await UserMethods.getUserByEmail(email);
+
+    if (existingUser) {
+      const verifyCode = generateShortId();
+      existingUser.verifyCode = verifyCode;
+      existingUser.save();
+
+      transporter.sendMail(
+        mailOptionsRegisGoogle(existingUser),
+        (error: { toString: () => any }, info: { response: string }) => {
+          if (error) {
+            return res.status(500).json({
+              status: false,
+              message: 'Gặp lỗi khi gửi mã, vui lòng thử lại',
+              error: error.toString(),
+            });
+          }
+          return res.status(200).json({
+            status: true,
+            message: 'Đã gửi mã! Kiểm tra email để lấy mã',
+          });
+        },
+      );
+
+      return res.status(200).json({
+        status: true,
+        message: 'Đã gửi mã! Kiểm tra email để lấy mã',
+      });
+    }
+
+    return res.status(404).json({
+      status: false,
+      message: 'Không tìm thấy người dùng ',
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: false, message: 'Đã xảy ra lỗi' });
+  }
+};
+
+// [POST] /auth/user/verifyGoogleAccount
+export const verifyGoogleAccount = async (req: express.Request, res: express.Response): Promise<any> => {
+  try {
+    const { email, code } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        status: false,
+        message: 'Trường này không được bỏ trống',
+      });
+    }
+
+    const existingUser = await UserMethods.getUserByEmail(email);
+
+    if (existingUser) {
+      if (existingUser.verifyCode === code) {
+        if (existingUser.authentication) {
+          // Tạo token mới cho người dùng
+          const salt = random();
+          existingUser.authentication.sessionToken = authentication(salt, existingUser._id.toString());
+          existingUser.verifyCode = '';
+          existingUser.googleEmail = email;
+          await existingUser.save();
+
+          return res.status(200).json({
+            status: true,
+            message: 'Xác thực thành công',
+            data: existingUser,
+          });
+        }
+
+        return res.status(404).json({
+          status: false,
+          message: 'Không tồn tại authenticated',
+          data: existingUser,
+        });
+      }
+
+      return res.status(404).json({
+        status: false,
+        message: 'Mã xác thực không chính xác',
+        data: existingUser,
+      });
+    }
+
+    return res.status(404).json({
+      status: false,
+      message: 'Không tìm thấy người dùng ',
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: false, message: 'Đã xảy ra lỗi' });
+  }
+};
+
+// [GET] /auth/user/logout
 export const logout = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
     res.clearCookie('CUSTOMER');

@@ -10,6 +10,14 @@ const UserSchema = new Schema(
     status: { type: String, default: true },
     segment_ids: { type: [String] },
     image: { type: String, default: '' },
+    verifyCode: {
+      type: String,
+      default: '',
+    },
+    googleEmail: {
+      type: String,
+      default: '',
+    },
     authentication: {
       password: { type: String, require: true, select: false },
       salt: { type: String, select: false },
