@@ -12,6 +12,11 @@ const ReplyPostSchema = new Schema(
       required: true,
       ref: 'CommentProduct',
     },
+    product_id: {
+      type: Types.ObjectId,
+      required: true,
+      ref: 'Product',
+    },
     content: {
       type: String,
       required: true,
@@ -34,6 +39,7 @@ export const ReplyProductMethods = {
   getReplyById: (id: string) => ReplyPost.findOne({ _id: id }),
   getRepliesByUserId: (id: string) => ReplyPost.findOne({ user_id: id }),
   getRepliesByCommentId: (id: string) => ReplyPost.find({ comment_id: id }),
+  getRepliesByProductId: (id: string) => ReplyPost.find({ product_id: id }),
   createReply: (values: Record<string, any>) => new ReplyPost(values).save().then((replies) => replies.toObject()),
   updateReplyById: (id: string): any => ReplyPost.findByIdAndUpdate({ _id: id }),
   deleteReplyById: (id: string) => ReplyPost.findByIdAndDelete({ _id: id }),

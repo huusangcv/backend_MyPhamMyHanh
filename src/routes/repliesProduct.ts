@@ -4,11 +4,13 @@ import {
   deleteReplyProduct,
   getAllReplies,
   getRepliesByCommentProduct,
+  getRepliesByProductId,
   updateReplyProduct,
 } from '../app/controllers/replyProduct';
 
 export default (router: express.Router) => {
-  router.get('/repliesProduct/comment/:commentId/', getRepliesByCommentProduct);
+  router.get('/repliesProduct/product/:productId', getRepliesByProductId);
+  router.get('/repliesProduct/comment/:commentId', getRepliesByCommentProduct);
   router.get('/repliesProduct', getAllReplies);
   router.post('/repliesProduct/comment/:commentId', createReplyProduct);
   router.patch('/repliesProduct/comment/:commentId/:id', updateReplyProduct);

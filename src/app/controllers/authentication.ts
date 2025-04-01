@@ -95,7 +95,9 @@ export const loginGoogle = async (req: express.Request, res: express.Response): 
       });
     }
 
-    let userExisting = await UserMethods.getUserByEmail(email).select('+authentication.salt + authentication.password');
+    let userExisting = await UserMethods.getUserByEmail(email).select(
+      '+authentication.salt + authentication.password + authentication.sessionToken + googleEmail',
+    );
 
     if (!userExisting) {
       return res.status(404).json({
@@ -113,14 +115,14 @@ export const loginGoogle = async (req: express.Request, res: express.Response): 
       const salt = random();
       userExisting.authentication.sessionToken = authentication(salt, userExisting._id.toString());
       await userExisting.save();
-    }
 
-    if (userExisting.googleEmail === email) {
-      return res.status(200).json({
-        status: true,
-        message: 'Đăng nhập thành công',
-        data: userExisting,
-      });
+      if (userExisting.googleEmail === email) {
+        return res.status(200).json({
+          status: true,
+          message: 'Đăng nhập thành công',
+          data: userExisting,
+        });
+      }
     }
 
     return res.status(403).json({
@@ -434,6 +436,85 @@ export const verifyResetPasswordAccount = async (req: express.Request, res: expr
   }
 };
 
+// [POST] /auth/user/connectGoogleAccount
+export const connectGoogleAccount = async (req: express.Request, res: express.Response): Promise<any> => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        status: false,
+        data: { message: 'Trường này không được bỏ trống' },
+      });
+    }
+
+    let existingUser = await UserMethods.getUserByEmail(email);
+
+    if (existingUser) {
+      existingUser.googleEmail = email;
+      existingUser.save();
+
+      return res.status(200).json({
+        status: true,
+        data: {
+          message: 'Liên kết google thành công',
+          data: existingUser,
+        },
+      });
+    }
+
+    return res.status(404).json({
+      status: false,
+      data: {
+        message: 'Tài khoản không tồn tại trong hệ thống',
+      },
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: false, message: 'Đã xảy ra lỗi' });
+  }
+};
+
+// [POST] /auth/user/cancelGoogleAccount
+export const cancelGoogleAccount = async (req: express.Request, res: express.Response): Promise<any> => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        status: false,
+        data: { message: 'Trường này không được bỏ trống' },
+      });
+    }
+
+    let existingUser = await UserMethods.getUserByEmail(email);
+
+    if (existingUser) {
+      existingUser.googleEmail = '';
+      existingUser.save();
+
+      return res.status(200).json({
+        status: true,
+
+        data: {
+          message: 'Huỷ liên kết google thành công',
+          data: existingUser,
+        },
+      });
+    }
+
+    return res.status(404).json({
+      status: false,
+      data: {
+        message: 'Tài khoản không tồn tại trong hệ thống',
+      },
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: false, message: 'Đã xảy ra lỗi' });
+  }
+};
+
 // [POST] /auth/user/resetPassword
 export const resetPassword = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
@@ -470,6 +551,101 @@ export const resetPassword = async (req: express.Request, res: express.Response)
   } catch (error) {
     console.log(error);
     return res.status(500).json({ status: false, message: 'Đã xảy ra lỗi' });
+  }
+};
+
+// [POST] /auth/user/changePassword
+export const changePassword = async (req: express.Request, res: express.Response): Promise<any> => {
+  try {
+    const { email, currentPassword, password } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        status: false,
+        data: {
+          message: 'Không nhận được địa chỉ email',
+        },
+      });
+    }
+
+    let existingUser = await UserMethods.getUserByEmail(email).select(
+      '+authentication.salt + authentication.password + authentication.sessionToken',
+    );
+
+    if (existingUser) {
+      const salt = random();
+
+      if (existingUser.authentication) {
+        const saltFromAuthentication = existingUser.authentication.salt;
+        const passswordFromAuthentication = existingUser.authentication.password;
+
+        if (!saltFromAuthentication || !passswordFromAuthentication) {
+          return res
+            .json({
+              status: false,
+              data: { message: 'Lỗi xác thực, vui lòng thử lại' },
+            })
+            .status(400);
+        }
+
+        // get password of user with currentPassword from client
+        const expectedHash = authentication(saltFromAuthentication, currentPassword);
+
+        //check currentPassword
+        if (passswordFromAuthentication !== expectedHash) {
+          return res
+            .json({
+              status: false,
+              data: {
+                message: 'Mật khẩu không chính xác',
+              },
+            })
+            .status(400);
+        }
+
+        // change new password
+        existingUser.authentication.salt = salt;
+        existingUser.authentication.password = authentication(salt, password);
+        existingUser.save();
+
+        //Get new info profile return json
+        const sessionToken = existingUser.authentication.sessionToken;
+
+        if (sessionToken) {
+          const userProfile = await UserMethods.getUserBySessionToken(sessionToken);
+          return res.status(200).json({
+            status: true,
+            data: {
+              message: 'Thay đổi mật khẩu thành công',
+              data: userProfile,
+            },
+          });
+        }
+        return res.status(404).json({
+          status: false,
+          data: {
+            message: 'Gặp lỗi khi thay đổi mật khẩu, hãy thử lại',
+          },
+        });
+      }
+
+      return res.status(404).json({
+        status: false,
+        data: {
+          message: 'Không tìm thấy authenticated',
+        },
+      });
+    }
+
+    return res.status(404).json({
+      status: false,
+      data: {
+        message: 'Tài khoản không tồn tại trong hệ thống',
+      },
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: false, data: { message: 'Đã xảy ra lỗi' } });
   }
 };
 

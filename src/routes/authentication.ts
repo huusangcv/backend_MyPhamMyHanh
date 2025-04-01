@@ -10,6 +10,9 @@ import {
   verifyGoogleAccount,
   verifyResetPasswordAccount,
   resetPassword,
+  changePassword,
+  connectGoogleAccount,
+  cancelGoogleAccount,
 } from '../app/controllers/authentication';
 import { deleteUser, profileUser, updateAvatar, updateUser } from '../app/controllers/users';
 // import { isAuthenticated, isOwner } from '../app/middlewares';
@@ -31,8 +34,11 @@ export default (router: express.Router) => {
   router.post('/auth/user/login', login);
   router.post('/auth/user/google/login', loginGoogle);
   router.post('/auth/user/resetPassword', resetPassword);
+  router.post('/auth/user/changePassword', changePassword);
   router.post('/auth/user/verifyGoogleAccount', verifyGoogleAccount);
   router.post('/auth/user/verifyResetPasswordAccount', verifyResetPasswordAccount);
+  router.post('/auth/user/connectGoogleAccount', connectGoogleAccount);
+  router.post('/auth/user/cancelGoogleAccount', cancelGoogleAccount);
   router.get('/auth/user/sendCodeVerifyAccount/:email', sendCodeVerifyAccount);
   router.get('/auth/user/sendCodeVerifyResetPassword/:email', sendCodeVerifyResetPassword);
 

@@ -155,6 +155,34 @@ export const getRepliesByCommentProduct = async (req: express.Request, res: expr
   }
 };
 
+// [GET] /replies/product/:productId
+export const getRepliesByProductId = async (req: express.Request, res: express.Response): Promise<any> => {
+  try {
+    const { productId } = req.params;
+
+    const replies = await ReplyProductMethods.getRepliesByProductId(productId as string);
+
+    if (replies.length > 0) {
+      return res.status(200).json({
+        status: true,
+        message: 'Phản hồi theo bình luận sản phẩm',
+        data: replies,
+      });
+    }
+
+    return res.status(403).json({
+      status: false,
+      message: 'Không có phản hồi nào',
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      status: false,
+      message: 'Đã xảy ra lỗi, hãy thử lại',
+    });
+  }
+};
+
 // [GET] /replies/
 export const getAllReplies = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
