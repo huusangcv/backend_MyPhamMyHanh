@@ -1,7 +1,7 @@
 import express from 'express';
 import { UserMethods } from '../models/user';
 import { random, authentication, transporter } from '../helpers';
-import { mailOptionsRegisGoogle } from '../mails';
+import { mailOptionsRegisGoogle, mailOptionsVerifyResetPassword } from '../mails';
 import { v4 as uuidv4 } from 'uuid';
 // Generate short id
 const generateShortId = () => {
@@ -183,7 +183,7 @@ export const registerGoogle = async (req: express.Request, res: express.Response
 
     return res.status(404).json({
       status: false,
-      message: 'Không tìm thấy người dùng mới',
+      message: 'Tài khoản không tồn tại trong hệ thốngmới',
     });
   } catch (error) {
     console.log(error);
@@ -237,8 +237,8 @@ export const register = async (req: express.Request, res: express.Response): Pro
   }
 };
 
-// [GET] /auth/user/sendCodeVerify/:email
-export const sendCodeVerify = async (req: express.Request, res: express.Response): Promise<any> => {
+// [GET] /auth/user/sendCodeVerifyAccount/:email
+export const sendCodeVerifyAccount = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
     const { email } = req.params;
 
@@ -281,7 +281,59 @@ export const sendCodeVerify = async (req: express.Request, res: express.Response
 
     return res.status(404).json({
       status: false,
-      message: 'Không tìm thấy người dùng ',
+      message: 'Tài khoản không tồn tại trong hệ thống',
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: false, message: 'Đã xảy ra lỗi' });
+  }
+};
+// [GET] /auth/user/sendCodeVerifyResetPassword/:email
+export const sendCodeVerifyResetPassword = async (req: express.Request, res: express.Response): Promise<any> => {
+  try {
+    const { email } = req.params;
+
+    if (!email) {
+      return res.status(400).json({
+        status: false,
+        message: 'Trường này không được bỏ trống',
+      });
+    }
+
+    const existingUser = await UserMethods.getUserByEmail(email);
+
+    if (existingUser) {
+      const verifyCode = generateShortId();
+      existingUser.verifyCode = verifyCode;
+      existingUser.save();
+
+      transporter.sendMail(
+        mailOptionsVerifyResetPassword(existingUser),
+        (error: { toString: () => any }, info: { response: string }) => {
+          if (error) {
+            return res.status(500).json({
+              status: false,
+              message: 'Gặp lỗi khi gửi mã, vui lòng thử lại',
+              error: error.toString(),
+            });
+          }
+          return res.status(200).json({
+            status: true,
+            message: 'Đã gửi mã! Kiểm tra email để lấy mã',
+            data: { info: info.response },
+          });
+        },
+      );
+
+      return res.status(200).json({
+        status: true,
+        message: 'Đã gửi mã! Kiểm tra email để lấy mã',
+      });
+    }
+
+    return res.status(404).json({
+      status: false,
+      message: 'Tài khoản không tồn tại trong hệ thống',
     });
   } catch (error) {
     console.log(error);
@@ -323,20 +375,97 @@ export const verifyGoogleAccount = async (req: express.Request, res: express.Res
         return res.status(404).json({
           status: false,
           message: 'Không tồn tại authenticated',
-          data: existingUser,
         });
       }
 
       return res.status(404).json({
         status: false,
         message: 'Mã xác thực không chính xác',
+      });
+    }
+
+    return res.status(404).json({
+      status: false,
+      message: 'Tài khoản không tồn tại trong hệ thống',
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: false, message: 'Đã xảy ra lỗi' });
+  }
+};
+
+// [POST] /auth/user/verifyResetPasswordAccount
+export const verifyResetPasswordAccount = async (req: express.Request, res: express.Response): Promise<any> => {
+  try {
+    const { email, code } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        status: false,
+        message: 'Trường này không được bỏ trống',
+      });
+    }
+
+    const existingUser = await UserMethods.getUserByEmail(email);
+
+    if (existingUser) {
+      if (existingUser.verifyCode === code) {
+        existingUser.verifyCode = '';
+        await existingUser.save();
+        return res.status(200).json({
+          status: true,
+          message: 'Xác thực thành công',
+        });
+      }
+
+      return res.status(404).json({
+        status: false,
+        message: 'Mã xác thực không chính xác',
+      });
+    }
+
+    return res.status(404).json({
+      status: false,
+      message: 'Tài khoản không tồn tại trong hệ thống',
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: false, message: 'Đã xảy ra lỗi' });
+  }
+};
+
+// [POST] /auth/user/resetPassword
+export const resetPassword = async (req: express.Request, res: express.Response): Promise<any> => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        status: false,
+        message: 'Trường này không được bỏ trống',
+      });
+    }
+
+    let existingUser = await UserMethods.getUserByEmail(email).select('+authentication.salt + authentication.password');
+
+    if (existingUser) {
+      const salt = random();
+
+      if (existingUser.authentication) {
+        existingUser.authentication.salt = salt;
+        existingUser.authentication.password = authentication(salt, password);
+        existingUser.save();
+      }
+      return res.status(200).json({
+        status: true,
+        message: 'Đặt lại mật khẩu thành công',
         data: existingUser,
       });
     }
 
     return res.status(404).json({
       status: false,
-      message: 'Không tìm thấy người dùng ',
+      message: 'Tài khoản không tồn tại trong hệ thống',
     });
   } catch (error) {
     console.log(error);

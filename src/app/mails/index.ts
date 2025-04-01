@@ -4,6 +4,80 @@ const formatter = new Intl.NumberFormat('vi-VN', {
   maximumFractionDigits: 2,
 });
 
+const mailOptionsVerifyResetPassword = (user: any) => {
+  return {
+    from: process.env.Email_User, // Địa chỉ email của bạn
+    to: user.email,
+    subject: `${user.verifyCode} là mã xác thực yêu cầu đặt lại tài khoản mật khẩu của bạn!`, // Subject line
+    text: 'Thông báo xác thực tài khoản', // plain text body
+    html: `<!DOCTYPE html>
+        <html lang="vi">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Yêu Cầu Đặt Lại Mật Khẩu</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    background-color: #f0f4f8;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    height: 100vh;
+                    margin: 0;
+                }
+                .container {
+                    background-color: white;
+                    padding: 30px;
+                    border-radius: 10px;
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                    text-align: center;
+                    width: 400px;
+                    margin: auto;
+                }
+                h2 {
+                    margin: 0 0 20px;
+                    font-size: 24px;
+                    color: #333;
+                }
+                p {
+                    margin: 10px 0;
+                    color: #555;
+                }
+                .code {
+                    background-color: #f0f4f8;
+                    font-size: 24px;
+                    font-weight: bold;
+                    padding: 10px;
+                    border-radius: 5px;
+                    margin: 20px 0;
+                }
+                .contact {
+                    color: #007bff;
+                    text-decoration: none;
+                }
+                .footer {
+                    margin-top: 20px;
+                    color: #777;
+                }
+            </style>
+        </head>
+        <body>
+
+        <div class="container">
+            <h2>Yêu cầu đặt lại mật khẩu</h2>
+            <p>Bạn đã nhận được email này vì chúng tôi đã nhận được yêu cầu đặt lại mật khẩu cho tài khoản của bạn.</p>
+            <div class="code">${user.verifyCode}</div>
+            <p>Đừng gửi mã này cho bất cứ ai, chúng tôi sẽ không bao giờ liên hệ cho bạn để lấy mã này.</p>
+            <p>Nếu có bất kỳ thắc mắc nào, hãy liên hệ với chúng tôi qua email <a href="mailto:contact@myphammyhanh.regis.id.vn" class="contact">contact@myphammyhanh.regis.id.vn</a> để được hỗ trợ.</p>
+            <div class="footer">Trân trọng,<br>Đội ngũ phát triển <a href="https://myphammyhanh.regis.id.vn" class="contact">myphammyhanh.regis.id.vn</a></div>
+        </div>
+
+        </body>
+        </html>`,
+  };
+};
+
 const mailOptionsRegisGoogle = (user: any) => {
   return {
     from: process.env.Email_User, // Địa chỉ email của bạn
@@ -190,4 +264,4 @@ const mailOptionsOrder = (order: any) => {
   };
 };
 
-export { mailOptionsOrder, mailOptionsRegisGoogle };
+export { mailOptionsOrder, mailOptionsRegisGoogle, mailOptionsVerifyResetPassword };
