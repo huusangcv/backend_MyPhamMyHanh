@@ -11,7 +11,7 @@ const ProductSchema = new Schema(
     images: { type: Object, required: true, default: [] },
     status: { type: Boolean, required: true, default: true },
     sold: { type: Number, default: 0, min: 0 },
-    quantity: {type: Number,required: true, min: 0 },
+    quantity: { type: Number, required: true, min: 0 },
     bestseller: { type: Boolean, default: false },
     discount: { type: Number, default: 0 },
   },
@@ -40,7 +40,6 @@ export const ProductMethods = {
     ProductModel.find({
       $or: [
         { name: { $regex: query, $options: 'i' } }, //Find not care toLowCase or toUpCase
-        { description: { $regex: query, $options: 'i' } },
       ],
     }),
   createProduct: (values: Record<string, any>) => new ProductModel(values).save().then((product) => product.toObject()),

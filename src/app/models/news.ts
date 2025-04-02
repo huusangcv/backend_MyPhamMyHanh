@@ -43,7 +43,6 @@ export const NewsMethods = {
     NewsModal.find({
       $or: [
         { title: { $regex: query, $options: 'i' } }, //Find not care toLowCase or toUpCase
-        { subtitle: { $regex: query, $options: 'i' } },
       ],
     }),
   createNews: (values: Record<string, any>) => new NewsModal(values).save().then((news) => news.toObject()),
