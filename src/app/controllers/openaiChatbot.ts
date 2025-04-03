@@ -22,7 +22,7 @@ export const createContent = async (req: express.Request, res: express.Response)
           ) => `<div style="background-color: #fff; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); padding: 20px; max-width: 400px; margin: auto;">
         <div style="font-size: 1.3rem; margin-bottom: 4px;">${product.name}</div>
         <div style="font-size: 1rem; color: #d9534f; margin-bottom: 4px;">500,000 VNĐ</div>
-        <img src='http://localhost:8080${product.images[0]}' alt=${product.name} style="max-width: 100%; border-radius: 8px;">
+        <img src='https://api.regis.id.vn${product.images[0]}' alt=${product.name} style="max-width: 100%; border-radius: 8px;">
         <div style="font-size: 1.3rem; margin-bottom: 20px;">
             Đây là sản phẩm ${product.name} tuyệt vời, phù hợp cho mọi nhu cầu của bạn. 
             Nó có chất lượng cao và tính năng nổi bật.
@@ -40,7 +40,7 @@ export const createContent = async (req: express.Request, res: express.Response)
     Câu hỏi của khách hàng: "${content}"
     Hãy trả lời một cách tự nhiên và thân thiện, 
     link sản phẩm thường sẽ là http://localhost:5173/product/ + slug của sản phẩm
-    link hình ảnh sẽ là http://localhost:8080 + product.images[0]
+    link hình ảnh sẽ là https://api.regis.id.vn + product.images[0]
     `;
 
     const response = await ai.models.generateContent({
