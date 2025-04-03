@@ -36,6 +36,7 @@ export default ProductModel;
 export const ProductMethods = {
   getProducts: () => ProductModel.find(),
   getProductBySlug: (slug: string): any => ProductModel.findOne({ slug }),
+  getProductsFields: (fields: string) => ProductModel.find({}, fields),
   searchProducts: (query: string) =>
     ProductModel.find({
       $or: [

@@ -32,19 +32,19 @@ export const createContent = async (req: express.Request, res: express.Response)
         .join('');
 
     const prompt = `
-    Bạn là một trợ lí bán hàng chuyên nghiệp.
+    Bạn là một trợ lí bán hàng chuyên nghiệp, tên của bạn là Nhân Viên Siêng Năng.
+    Website này được xây dựng bởi Hữu Sang.
     Đây là danh sách sản phẩm có trong cửa hàng (hiển thị theo dạng HTML):
     ${productsHtml}
 
     Câu hỏi của khách hàng: "${content}"
-    nếu câu hỏi không liên quan đến sản phẩm, hãy trả lời một cách tự nhiên và thân thiện.
-    Hãy trả lời một cách tự nhiên và thân thiện, đồng thời hiển thị kết quả dưới dạng html để dễ đọc hơn,
+    Hãy trả lời một cách tự nhiên và thân thiện, 
     link sản phẩm thường sẽ là http://localhost:5173/product/ + slug của sản phẩm
     link hình ảnh sẽ là http://localhost:8080 + product.images[0]
     `;
 
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-pro-exp-03-25', // or gemini-2.0-flash-thinking-exp
+      model: 'gemini-2.0-flash-thinking-exp', // or gemini-2.0-flash-thinking-exp gemini-2.5-pro-exp-03-25
       contents: prompt,
     });
 
