@@ -18,11 +18,11 @@ app.use(
     origin: [
       'https://api.regis.id.vn',
       'https://admin.regis.id.vn',
-      'https://"myphammyhanh.regis.id.vn"',
+      'https://myphammyhanh.regis.id.vn',
       'https://accounts.regis.id.vn',
       'http://localhost:3000',
       'http://localhost:5173',
-      'http://localhost:5174',
+      'https://accounts.regis.id.vn',
     ],
     credentials: true,
   }),
