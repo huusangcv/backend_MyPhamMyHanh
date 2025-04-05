@@ -10,6 +10,15 @@ const ProductSchema = new Schema(
     description: { type: String, required: true },
     images: { type: Object, required: true, default: [] },
     status: { type: Boolean, required: true, default: true },
+    view: { type: Number, default: 0, min: 0 },
+    likes: [
+      {
+        type: String,
+        ref: 'User',
+      },
+    ],
+    rating: { type: Number, default: 0, min: 0 },
+    ratingCount: { type: Number, default: 0, min: 0 },
     sold: { type: Number, default: 0, min: 0 },
     quantity: { type: Number, required: true, min: 0 },
     bestseller: { type: Boolean, default: false },
@@ -56,4 +65,30 @@ export const ProductMethods = {
     ProductModel.findByIdAndDelete({
       _id: id,
     }),
+  likeProduct: async (id: string, userId: string) => {
+    const product = await ProductModel.findById(id);
+    if (!product) {
+      throw new Error('Sản phẩm không tồn tại');
+    }
+
+    // Kiểm tra xem người dùng đã "like" Sản phẩm chưa
+    if (!product.likes.includes(userId)) {
+      product.likes.push(userId); // Thêm userId vào mảng likes
+      await product.save();
+    }
+
+    return product.toObject();
+  },
+  unlikeProduct: async (id: string, userId: string) => {
+    const product = await ProductModel.findById(id);
+    if (!product) {
+      throw new Error('Sản phẩm không tồn tại');
+    }
+
+    // Xóa userId khỏi mảng likes nếu nó tồn tại
+    product.likes = product.likes.filter((likeId) => likeId.toString() !== userId);
+    await product.save();
+
+    return product.toObject();
+  },
 };

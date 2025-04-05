@@ -273,6 +273,9 @@ export const getOne = async (req: express.Request, res: express.Response): Promi
       });
     }
 
+    product.view += 1;
+    await product.save();
+
     const reviews = await ReviewModel.find({ product_id: product._id });
 
     if (reviews.length > 0) {
