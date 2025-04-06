@@ -16,7 +16,7 @@ connect();
 app.use(
   cors({
     origin: [
-      'https://api.regis.id.vn',
+      'http://localhost:8080',
       'https://admin.regis.id.vn',
       'https://myphammyhanh.regis.id.vn',
       'https://accounts.regis.id.vn',

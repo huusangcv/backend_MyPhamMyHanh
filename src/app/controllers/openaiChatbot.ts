@@ -1,6 +1,6 @@
-import express from 'express';
+import express, { response } from 'express';
 import dotenv from 'dotenv';
-import { GoogleGenAI } from '@google/genai';
+import { createPartFromUri, createUserContent, GoogleGenAI } from '@google/genai';
 import { ProductMethods } from '../models/product';
 // Load environment variables from .env file
 dotenv.config();
@@ -13,35 +13,77 @@ export const createContent = async (req: express.Request, res: express.Response)
 
     const products = await ProductMethods.getProducts();
 
-    const productsHtml =
-      Array.isArray(products) &&
-      products
-        .map(
-          (
-            product,
-          ) => `<div style="background-color: #fff; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); padding: 20px; max-width: 400px; margin: auto;">
-        <div style="font-size: 1.3rem; margin-bottom: 4px;">${product.name}</div>
-        <div style="font-size: 1rem; color: #d9534f; margin-bottom: 4px;">500,000 VNĐ</div>
-        <img src='https://api.regis.id.vn${product.images[0]}' alt=${product.name} style="max-width: 100%; border-radius: 8px;">
-        <div style="font-size: 1.3rem; margin-bottom: 20px;">
-            Đây là sản phẩm ${product.name} tuyệt vời, phù hợp cho mọi nhu cầu của bạn. 
-            Nó có chất lượng cao và tính năng nổi bật.
-        </div>
-    </div>`,
-        )
-        .join('');
+    const productsHtml = Array.isArray(products)
+      ? `
+      <div class="products-container">
+        ${products
+          .map(
+            (product) => `
+          <div class="product-card">
+            <div class="product-name">${product.name}</div>
+            <div class="product-price">${product.price.toLocaleString()} VNĐ</div>
+            <img src='http://localhost:8080${product.images[0]}' alt='${product.name}' class="product-image">
+            <div class="product-description">
+              Đây là sản phẩm ${product.name} tuyệt vời, phù hợp cho mọi nhu cầu của bạn.
+            </div>
+          </div>`,
+          )
+          .join('')}
+      </div>
+    `
+      : '';
+
+    const trainingQuestions = [
+      'Bạn có thể cho tôi biết thêm về sản phẩm này không?',
+      'Sản phẩm này có các tùy chọn màu sắc nào?',
+      'Tôi có thể nhận được thông tin về kích thước của sản phẩm không?',
+      'Sản phẩm này có chương trình khuyến mãi không?',
+      'Có chương trình bảo hành cho sản phẩm này không?',
+      'Tôi làm thế nào để đặt hàng?',
+      'Có cần phải tạo tài khoản để mua hàng không?',
+      'Tôi có thể thay đổi hoặc hủy đơn hàng đã đặt không?',
+      'Thời gian giao hàng là bao lâu sau khi đặt hàng?',
+      'Các phương thức thanh toán nào được chấp nhận?',
+      'Tôi có thể thanh toán khi nhận hàng không?',
+      'Có phí giao hàng không và cách tính phí như thế nào?',
+      'Tôi có thể nhận hóa đơn điện tử không?',
+      'Khoảng thời gian giao hàng dự kiến là bao lâu?',
+      'Tôi có thể theo dõi đơn hàng của mình không?',
+      'Nếu đơn hàng bị trễ thì tôi có thể làm gì?',
+      'Có thể giao hàng đến địa chỉ nào?',
+      'Chính sách hoàn trả của bạn là gì?',
+      'Tôi có thể đổi sản phẩm trong bao lâu sau khi mua?',
+      'Làm thế nào để gửi sản phẩm trả lại?',
+      'Tiền hoàn lại sẽ được trả trong bao lâu?',
+      'Làm thế nào tôi có thể liên hệ với bộ phận hỗ trợ khách hàng?',
+      'Giờ làm việc của bộ phận hỗ trợ khách hàng là gì?',
+      'Tôi có thể gửi phản hồi hoặc khiếu nại qua đâu?',
+      'Bạn có cung cấp hỗ trợ sau khi mua hàng không?',
+      'Hiện tại có chương trình khuyến mãi nào không?',
+      'Tôi có thể nhận được mã giảm giá bằng cách nào?',
+      'Các sản phẩm nào đang trong chương trình giảm giá?',
+      'Làm sao để đăng ký nhận thông tin khuyến mãi qua email?',
+      'Bạn có thể giới thiệu các sản phẩm tương tự cho tôi không?',
+      'Tại sao tôi không thể tìm thấy sản phẩm tôi đang tìm kiếm?',
+      'Có một số câu hỏi thường gặp (FAQ) nào mà tôi nên xem qua không?',
+    ];
+
+    const trainingPrompt = `
+      Bạn là một trợ lí bán hàng chuyên nghiệp tại cửa hàng Mỹ phẩm Mỹ Hạnh.
+      Dưới đây là danh sách các câu hỏi thường gặp từ khách hàng:
+      ${trainingQuestions.map((q, index) => `${index + 1}. ${q}`).join('\n')}
+      Hãy sử dụng thông tin này để trả lời các câu hỏi của khách hàng một cách chính xác, tự nhiên và thân thiện.
+    `;
 
     const prompt = `
-    Bạn là một trợ lí bán hàng chuyên nghiệp, tên của bạn là Nhân Viên Siêng Năng.
-    Website này được xây dựng bởi Hữu Sang.
-    Đây là danh sách sản phẩm có trong cửa hàng (hiển thị theo dạng HTML):
-    ${productsHtml}
-
-    Câu hỏi của khách hàng: "${content}"
-    Hãy trả lời một cách tự nhiên và thân thiện, 
-    link sản phẩm thường sẽ là http://localhost:5173/product/ + slug của sản phẩm
-    link hình ảnh sẽ là https://api.regis.id.vn + product.images[0]
-    `;
+        ${trainingPrompt}
+        Dưới đây là danh sách sản phẩm có sẵn (dạng HTML):
+        ${productsHtml}
+        Câu hỏi: "${content}"
+        Hãy xưng hô là "Em" và trả lời câu hỏi của khách hàng một cách tự nhiên, thân thiện và chính xác.
+        Tránh sử dụng từ ngữ khó hiểu và tối ưu phản hồi ở định dạng HTML.
+        Hãy không sử dụng các thẻ HTML không cần thiết như <script>, <style>, <link>, <iframe>.
+      `;
 
     const response = await ai.models.generateContent({
       model: 'gemini-2.0-flash-thinking-exp', // or gemini-2.0-flash-thinking-exp gemini-2.5-pro-exp-03-25
@@ -54,7 +96,10 @@ export const createContent = async (req: express.Request, res: express.Response)
         message: 'Trả lời câu hỏi thành công',
         data: {
           ask: content,
-          content: response.text,
+          content: response.text
+            .replace(/```html/g, '')
+            .replace(/```/, '')
+            .trim(),
         },
       });
     }
