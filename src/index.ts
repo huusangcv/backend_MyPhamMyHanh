@@ -8,10 +8,9 @@ import { connect } from './config/index';
 import router from './routes';
 import path from 'path';
 require('dotenv').config();
-const port = process.env.PORT;
+const port = process.env.PORT || 4000;
 const app = express();
 connect();
-
 // Middleware
 app.use(
   cors({

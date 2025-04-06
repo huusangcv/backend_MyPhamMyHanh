@@ -1,8 +1,11 @@
 import { Schema, model } from 'mongoose';
+import slugify from 'slugify';
 
 const SegmentSchema = new Schema(
   {
     name: { type: String, require: true },
+    slug: { type: String, require: true },
+    description: { type: String, default: '' },
     note: { type: String, default: '' },
     status: { type: Boolean, default: true },
   },
@@ -10,6 +13,16 @@ const SegmentSchema = new Schema(
     timestamps: true,
   },
 );
+
+//Transfrom name to slug for product
+SegmentSchema.pre('save', function (next) {
+  if (this.isModified('name') || this.isNew) {
+    if (typeof this.name === 'string') {
+      this.slug = slugify(this.name, { lower: true, strict: true }); // Tạo slug từ name
+    }
+  }
+  next();
+});
 
 const SegmentModel = model('Segment', SegmentSchema);
 
