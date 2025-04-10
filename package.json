@@ -2,9 +2,14 @@
   "name": "backend",
   "version": "1.0.0",
   "main": "index.ts",
+  "engines": {
+    "node": "14.x"
+  },
   "scripts": {
     "prestart": "chmod +x node_modules/.bin/ts-node",
-    "start": "node --max-old-space-size=4096 -r ts-node/register ./src/index.ts",
+    "deploy": "node --max-old-space-size=4096 -r ts-node/register ./src/index.ts",
+    "start": "ts-node src/index.ts",
+    "build": "tsc",
     "dev": "nodemon",
     "test": "echo \"Error: no test specified\" && exit 1",
     "prettier-format": "prettier --config .prettierrc 'src/**/*.ts' --write",
