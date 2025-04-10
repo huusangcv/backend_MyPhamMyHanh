@@ -15,6 +15,7 @@ import payment from './payment';
 import openaiChatbot from './openaiChatbot';
 import commentProduct from './commentProduct';
 import repliesProduct from './repliesProduct';
+import slides from './slides';
 const router = express.Router();
 
 export default (): express.Router => {
@@ -34,5 +35,6 @@ export default (): express.Router => {
   commentProduct(router);
   payment(router);
   openaiChatbot(router);
+  slides(router);
   return router;
 };

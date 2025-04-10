@@ -80,3 +80,15 @@ export const uploadChatbotAiPhotos = multer({
     },
   }),
 });
+
+// storage for photos slide
+export const uploadSlideImages = multer({
+  storage: multer.diskStorage({
+    destination: function (req, files, cb) {
+      cb(null, 'src/uploads/slides/');
+    },
+    filename: function (req, files, cb) {
+      cb(null, files.originalname);
+    },
+  }),
+});

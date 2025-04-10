@@ -1,12 +1,12 @@
 import { Schema, model } from 'mongoose';
 
-const promotionSchema = new Schema(
+const PromotionSchema = new Schema(
   {
     code: {
       type: String,
       required: true,
-      unique: true, // Đảm bảo mã khuyến mãi không bị trùng
-      trim: true, // Loại bỏ khoảng trắng đầu và cuối
+      unique: true,
+      trim: true,
     },
     discountType: {
       type: String,
@@ -28,7 +28,7 @@ const promotionSchema = new Schema(
     },
     applicableProducts: {
       type: [Schema.Types.ObjectId],
-      ref: 'Product', // Tham chiếu đến mô hình sản phẩm
+      ref: 'Product',
     },
     usageLimit: {
       type: Number,
