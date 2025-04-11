@@ -214,48 +214,38 @@ export const uploadAvatar = async (req: express.Request, res: express.Response):
   try {
     const imagePath = req.file;
     // Configuration
-    cloudinary.config({
-      cloud_name: 'dzbddgwvd',
-      api_key: '566452474349912',
-      api_secret: 'EG40rcEL86UTtG559S5SS0Aqoqw',
-    });
 
     if (imagePath) {
       // Upload an image to the 'profile' folder
+      const originalName = imagePath.originalname;
+      const cleanedFileName = originalName.replace(/\.(\w+)\.\1$/, '.$1');
 
       const uploadResult = await cloudinary.uploader
         .upload(imagePath.path, {
-          folder: 'profile', // Specify the folder on Cloudinary
-          public_id: imagePath.filename,
+          public_id: cleanedFileName.split('.')[0],
+          folder: 'profile',
           use_filename: true,
-          unique_filename: false,
-          overwrite: true,
+          transformation: [
+            {
+              width: 300, // Resize width
+              height: 300, // Resize height
+              crop: 'fill', // Crop to fill the dimensions
+              gravity: 'face', // Focus on the face if available
+              fetch_format: 'avif',
+            },
+          ],
         })
         .catch((error) => {
           console.log(error);
         });
 
       if (uploadResult) {
-        const optimizeUrl = cloudinary.url(uploadResult.public_id, {
-          fetch_format: 'auto',
-          quality: 'auto',
-        });
-
-        // Transform the image: auto-crop to square aspect_ratio
-        const autoCropUrl = cloudinary.url(uploadResult.public_id, {
-          crop: 'auto',
-          gravity: 'auto',
-          width: 500,
-          height: 500,
-        });
-
+        const CloneImagePath = uploadResult.secure_url.replace('https://res.cloudinary.com', '');
         return res.status(200).json({
           status: true,
           message: 'Upload ảnh đại diện thành công',
           data: {
-            uploadResult,
-            optimizeUrl,
-            autoCropUrl,
+            imagePath: CloneImagePath,
           },
         });
       }
@@ -286,10 +276,32 @@ export const updateAvatar = async (req: express.Request, res: express.Response):
       });
     }
 
-    const user = await UserMethods.updateUserById(id);
+    // Upload an image to the 'profile' folder
+    const originalName = imagePath.originalname;
+    const cleanedFileName = originalName.replace(/\.(\w+)\.\1$/, '.$1');
 
-    if (user) {
-      const CloneImagePath = `/uploads/profile/${imagePath.originalname}`;
+    const uploadResult = await cloudinary.uploader
+      .upload(imagePath.path, {
+        public_id: cleanedFileName.split('.')[0],
+        folder: 'profile',
+        use_filename: true,
+        transformation: [
+          {
+            width: 200, // Resize width
+            height: 200, // Resize height
+            crop: 'fill', // Crop to fill the dimensions
+            gravity: 'face', // Focus on the face if available
+            fetch_format: 'avif',
+          },
+        ],
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+
+    if (uploadResult) {
+      const user = await UserMethods.updateUserById(id);
+      const CloneImagePath = uploadResult.secure_url.replace('https://res.cloudinary.com', '');
       user.image = CloneImagePath;
       user.save();
 
@@ -297,6 +309,8 @@ export const updateAvatar = async (req: express.Request, res: express.Response):
         status: true,
         message: 'Upload ảnh đại diện thành công',
         data: user,
+        uploadResult,
+        CloneImagePath,
       });
     }
 

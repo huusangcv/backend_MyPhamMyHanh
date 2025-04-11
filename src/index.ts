@@ -7,10 +7,17 @@ import cors from 'cors';
 import { connect } from './config/index';
 import router from './routes';
 import path from 'path';
+import { v2 as cloudinary } from 'cloudinary';
 require('dotenv').config();
 const port = process.env.PORT || 4000;
 const app = express();
 connect();
+
+cloudinary.config({
+  cloud_name: 'dzbddgwvd',
+  api_key: '566452474349912',
+  api_secret: 'EG40rcEL86UTtG559S5SS0Aqoqw',
+});
 // Middleware
 app.use(
   cors({
