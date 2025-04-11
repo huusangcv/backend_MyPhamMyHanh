@@ -32,8 +32,7 @@ app.use(compression());
 app.use(cookieParser());
 app.use(bodyParser.json()); // Phân tích cú pháp JSON
 app.use(bodyParser.urlencoded({ extended: true })); // Phân tích cú pháp urlencoded
-app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
-
+app.use('/uploads', express.static(path.join(__dirname, '..', '..', 'uploads')));
 // Router
 app.use('/v1/', router());
 

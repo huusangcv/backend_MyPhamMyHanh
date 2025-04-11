@@ -19,5 +19,9 @@
       "src": "/(.*)",
       "dest": "/"
     }
-  ]
+  ],
+  "static": {
+    "src": "uploads",
+    "dest": "/uploads"
+  }
 }
