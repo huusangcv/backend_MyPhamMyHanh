@@ -8,10 +8,6 @@
   ],
   "routes": [
     {
-      "src": "/uploads/(.*)",
-      "dest": "/uploads/$1"
-    },
-    {
       "src": "/v1/(.*)",
       "dest": "src/index.ts"
     },
@@ -19,9 +15,5 @@
       "src": "/(.*)",
       "dest": "/"
     }
-  ],
-  "static": {
-    "src": "uploads",
-    "dest": "/uploads"
-  }
+  ]
 }
