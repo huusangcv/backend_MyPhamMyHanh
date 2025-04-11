@@ -1,6 +1,8 @@
 import express from 'express';
 import { UserMethods } from '../models/user';
 import ReviewModel from '../models/review';
+import { v2 as cloudinary } from 'cloudinary';
+
 // [GET] /users
 export const getAllUsers = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
@@ -211,19 +213,57 @@ export const updateUser = async (req: express.Request, res: express.Response): P
 export const uploadAvatar = async (req: express.Request, res: express.Response): Promise<any> => {
   try {
     const imagePath = req.file;
-    if (!imagePath) {
-      return res.status(400).json({
-        status: false,
-        message: 'No image file provided',
-      });
+    // Configuration
+    cloudinary.config({
+      cloud_name: 'dzbddgwvd',
+      api_key: '566452474349912',
+      api_secret: 'EG40rcEL86UTtG559S5SS0Aqoqw',
+    });
+
+    if (imagePath) {
+      // Upload an image to the 'profile' folder
+
+      const uploadResult = await cloudinary.uploader
+        .upload(imagePath.path, {
+          folder: 'profile', // Specify the folder on Cloudinary
+          public_id: imagePath.filename,
+          use_filename: true,
+          unique_filename: false,
+          overwrite: true,
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+
+      if (uploadResult) {
+        const optimizeUrl = cloudinary.url(uploadResult.public_id, {
+          fetch_format: 'auto',
+          quality: 'auto',
+        });
+
+        // Transform the image: auto-crop to square aspect_ratio
+        const autoCropUrl = cloudinary.url(uploadResult.public_id, {
+          crop: 'auto',
+          gravity: 'auto',
+          width: 500,
+          height: 500,
+        });
+
+        return res.status(200).json({
+          status: true,
+          message: 'Upload ảnh đại diện thành công',
+          data: {
+            uploadResult,
+            optimizeUrl,
+            autoCropUrl,
+          },
+        });
+      }
     }
 
-    const CloneImagePath = `/uploads/profile/${imagePath.originalname}`;
-
-    return res.status(200).json({
-      status: true,
-      message: 'Upload ảnh đại diện thành công',
-      data: CloneImagePath,
+    return res.status(400).json({
+      status: false,
+      message: 'Không có file ảnh được cung cấp',
     });
   } catch (error) {
     console.log(error);

@@ -22,7 +22,7 @@ export const createContent = async (req: express.Request, res: express.Response)
           <div class="product-card">
             <div class="product-name">${product.name}</div>
             <div class="product-price">${product.price.toLocaleString()} VNĐ</div>
-            <img src='https://https://backend.regis.id.vn${product.images[0]}' alt='${product.name}' class="product-image">
+            <img src='https://backend.regis.id.vn${product.images[0]}' alt='${product.name}' class="product-image">
             <div class="product-description">
               Đây là sản phẩm ${product.name} tuyệt vời, phù hợp cho mọi nhu cầu của bạn.
             </div>
